@@ -3373,6 +3373,20 @@ Thank you for being my home</div>
       cloneCanvas.replaceWith(snapshot);
     });
 
+    // Every <img> in the clone (the uploaded/cropped back photo, plus the
+    // canvas snapshots just swapped in above) is about to be re-decoded
+    // from scratch by a brand-new, isolated document when the SVG below
+    // gets loaded into its own <img> — the browser's decode of the photo
+    // on the *live* page tells it nothing about that separate context.
+    // decoding="sync" asks the renderer to decode inline rather than
+    // deferring it, which on several mobile WebKit/Chromium builds is the
+    // difference between the photo actually painting into that nested
+    // foreignObject <img> vs. the outer snapshot getting rasterized before
+    // the photo has finished decoding and silently coming out blank —
+    // exactly the "이미지가 안 보여" report from a saved PNG. Cheap and
+    // harmless to set even where it isn't the fix.
+    clone.querySelectorAll('img').forEach(im=>{ im.setAttribute('decoding', 'sync'); im.removeAttribute('loading'); });
+
     const styleText = buildExportCSS(fontCSS);
     const xhtml = new XMLSerializer().serializeToString(clone);
 
@@ -3430,8 +3444,22 @@ Thank you for being my home</div>
       try{ img = await loadImg(url); }
       finally{ URL.revokeObjectURL(url); }
     }
-    // small delay so embedded webfonts finish applying before paint
-    await new Promise(r=>setTimeout(r, 60));
+    // img.onload firing (inside loadImg) only means the outer SVG document
+    // itself parsed — it does not guarantee the nested foreignObject
+    // content, in particular the back-photo <img>, has actually finished
+    // decoding and painting yet. img.decode() is the browser's own
+    // "this is genuinely ready to draw" signal and is a stronger guarantee
+    // than onload wherever it's supported; two animation-frame waits on
+    // top of it (rather than another arbitrary timeout) queue this past
+    // whatever paint the renderer still had pending, which is what a fixed
+    // millisecond delay can't reliably do on a slower phone. Falls back to
+    // the old flat delay only if decode() itself isn't available/fails.
+    if(img.decode){
+      try{ await img.decode(); }catch(e){ await new Promise(r=>setTimeout(r, 60)); }
+    } else {
+      await new Promise(r=>setTimeout(r, 60));
+    }
+    await new Promise(r=> requestAnimationFrame(()=> requestAnimationFrame(r)));
 
     const canvas = document.createElement('canvas');
     canvas.width = Math.round(w*scale);
