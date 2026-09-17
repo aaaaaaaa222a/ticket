@@ -153,7 +153,7 @@
 
   /* Custom color-picker trigger: a rainbow ring with the currently chosen
      color shown in the middle. Opens the in-house picker popover below —
-     no native <input type=color> dialog, so it matches the editor. */
+     no native color-input dialog, so it matches the editor. */
   .swatch-picker{
     position:relative; width:20px; height:20px; border-radius:50%;
     border:none; padding:0; flex-shrink:0;
@@ -1628,9 +1628,18 @@
               // Strip just this failed "url(...) format(...)" src entry so no
               // external reference is left behind, rather than the old
               // behaviour of silently keeping the un-embedded remote url.
+              // fu was extracted with any quotes already stripped off, but
+              // the original CSS text very often wraps its url() sources in
+              // quotes (url('https://...')) — matching only the unquoted
+              // form here meant this regex silently failed to match on any
+              // quoted source, leaving the original external url() sitting
+              // untouched in the "embedded" block. That surviving remote
+              // reference is exactly what taints the export canvas
+              // (SecurityError on toDataURL), even though every fetch
+              // technically succeeded or failed exactly as expected.
               const escaped = fu.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
               embedded = embedded.replace(
-                new RegExp(',?\\s*url\\(' + escaped + '\\)(\\s*format\\([^)]*\\))?'), ''
+                new RegExp(',?\\s*url\\(\\s*[\'"]?' + escaped + '[\'"]?\\s*\\)(\\s*format\\([^)]*\\))?'), ''
               );
             }
           });
@@ -1690,6 +1699,24 @@
     });
   }
 
+  function stripUnembeddedFontUrls(css){
+    // Last line of defense: whatever bug produced it, a remote (non-data:)
+    // url() that slips through here would taint the export canvas and fail
+    // every save with a SecurityError. Drop any such src, and drop the
+    // whole @font-face block if nothing embeddable is left in it — a
+    // missing font falls back quietly, a stray remote url() does not.
+    return css.replace(/@font-face\s*\{[\s\S]*?\}/g, block=>{
+      const cleaned = block.replace(
+        /,?\s*url\(\s*['"]?(?!data:)[^)'"]*['"]?\s*\)(\s*format\([^)]*\))?/g, ''
+      );
+      const ok = /url\(\s*['"]?data:/.test(cleaned);
+      if(!ok || cleaned !== block){
+        console.warn('[font export] stripped a non-data: url() from a @font-face block'+(ok?'':' (block dropped entirely)')+':', block.slice(0,200));
+      }
+      return ok ? cleaned : '';
+    });
+  }
+
   function buildExportCSS(fontCSS){
     const mainCSS = document.getElementById('mainStyle').textContent;
     const root = getComputedStyle(document.documentElement);
@@ -1710,7 +1737,7 @@
         --ticket-hand-style:${v('--ticket-hand-style')};
       }
       body,html{ margin:0; padding:0; background:transparent; }`;
-    return mainCSS + '\n' + (fontCSS || '') + '\n' + overrides;
+    return mainCSS + '\n' + stripUnembeddedFontUrls(fontCSS || '') + '\n' + overrides;
   }
 
   async function renderFaceToCanvas(faceEl, scale, fontCSS){
@@ -1745,11 +1772,22 @@
     const styleText = buildExportCSS(fontCSS);
     const xhtml = new XMLSerializer().serializeToString(clone);
 
+    // The foreignObject content is parsed as strict XML, unlike a normal
+    // <style> tag in an HTML document (which accepts raw text with no
+    // escaping). styleText comes from #mainStyle's plain-text CSS — which
+    // can freely contain a literal '<' or '&' inside a comment or a
+    // content:'' value and still be perfectly valid CSS in the live page —
+    // so it must be escaped before landing inside this XML document, or a
+    // single stray '<' silently makes the whole SVG unparseable and every
+    // export fails with a generic "이미지를 불러오지 못했습니다" decode
+    // error that has nothing to do with fonts or images at all.
+    const escapeForXmlText = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
     const svgMarkup =
       `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">`+
       `<foreignObject x="0" y="0" width="${w}" height="${h}">`+
       `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${w}px;height:${h}px;">`+
-      `<style>${styleText}</style>${xhtml}`+
+      `<style>${escapeForXmlText(styleText)}</style>${xhtml}`+
       `</div></foreignObject></svg>`;
 
     // A blob: URL is used instead of a data: URI here: once several fonts
