@@ -144,12 +144,21 @@
     outline: 2px solid var(--accent); outline-offset: 2px;
   }
 
+  .stepper{ display:flex; align-items:center; gap:8px; }
+  .btn.small{ padding:5px 10px; font-size:13px; line-height:1; }
+  .stepper-count{
+    font-family:'Space Mono', monospace; font-size:12px; color:#eee;
+    min-width:14px; text-align:center;
+  }
+
   .swatches{ display:flex; gap:6px; align-items:center; }
   .swatch{
     width:20px; height:20px; border-radius:50%; border:2px solid rgba(255,255,255,.25);
     cursor:pointer; padding:0;
   }
   .swatch.active{ border-color:#fff; box-shadow:0 0 0 2px rgba(255,255,255,.15); }
+  .swatch:disabled, .swatch-picker:disabled,
+  .font-select:disabled, .btn.small:disabled{ opacity:.35; cursor:not-allowed; }
 
   /* Custom color-picker trigger: a rainbow ring with the currently chosen
      color shown in the middle. Opens the in-house picker popover below —
@@ -466,10 +475,11 @@
     display:flex; align-items:flex-end; justify-content:space-between; gap:14px;
   }
   .back-fields{ display:flex; flex-direction:column; gap:5px; }
+  .actor-rows{ display:flex; flex-direction:column; gap:5px; }
   .back-row{ display:flex; align-items:baseline; gap:8px; }
   .back-row label{ font-size:8px; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.55); width:72px; flex-shrink:0; font-family:var(--ticket-font-label); }
   .back-row .sig{
-    font-family:var(--ticket-font-hand); font-size:21px; font-weight:var(--ticket-hand-weight);
+    font-family:var(--ticket-font-hand); font-size:16px; font-weight:var(--ticket-hand-weight);
     font-style:var(--ticket-hand-style); color:#fdf6ee;
     text-shadow: 0 1px 6px rgba(0,0,0,.5); line-height:1;
   }
@@ -502,12 +512,23 @@
      once, on the stamp's inner ring. */
   .face.th-hz261{
     --xhair: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11'%3E%3Cg stroke='%2343536f' stroke-opacity='0.4' stroke-width='1'%3E%3Cpath d='M5.5 0.5v10M0.5 5.5h10'/%3E%3C/g%3E%3C/svg%3E");
-    background-image: var(--xhair), var(--xhair), var(--xhair), var(--xhair);
-    background-repeat: no-repeat;
+    /* A quiet nod to the reference posters: two orbit rings and a stray
+       comet arc bleeding off the bottom-right corner, plus a faint
+       scattered-dot starfield across the whole face. Kept low-opacity so
+       it reads as texture, not decoration competing with the type. */
+    --orbit: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cg fill='none' stroke='%2343536f' stroke-width='1'%3E%3Ccircle cx='160' cy='160' r='156' stroke-opacity='0.16'/%3E%3Ccircle cx='160' cy='160' r='112' stroke-opacity='0.12'/%3E%3Cellipse cx='160' cy='160' rx='156' ry='54' transform='rotate(-22 160 160)' stroke-opacity='0.14'/%3E%3Cpath d='M20 250 Q120 150 300 40' stroke-opacity='0.1'/%3E%3C/g%3E%3C/svg%3E");
+    --stars: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='%2343536f' fill-opacity='0.35'%3E%3Ccircle cx='14' cy='22' r='1.1'/%3E%3Ccircle cx='96' cy='8' r='1'/%3E%3Ccircle cx='150' cy='58' r='1.3'/%3E%3Ccircle cx='60' cy='90' r='1'/%3E%3Ccircle cx='168' cy='120' r='1.1'/%3E%3Ccircle cx='30' cy='150' r='1'/%3E%3Ccircle cx='110' cy='166' r='1.2'/%3E%3C/g%3E%3C/svg%3E");
+    background-image: var(--stars), var(--xhair), var(--xhair), var(--xhair), var(--xhair), var(--orbit);
+    background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
     background-position:
+      0 0,
       15px 15px, calc(100% - 15px) 15px,
-      15px calc(100% - 15px), calc(100% - 15px) calc(100% - 15px);
+      15px calc(100% - 15px), calc(100% - 15px) calc(100% - 15px),
+      calc(100% - 40px) calc(100% - 40px);
+    background-size: 180px 180px, auto, auto, auto, auto, 320px 320px;
   }
+  /* The back face is always covered edge-to-edge by the photo, so its own
+     background never shows — left unset here on purpose. */
   .face.back.th-hz261{ background-image:none; }
 
   .face.th-hz261 .fr-title{ letter-spacing:-.015em; }
@@ -529,10 +550,168 @@
   .face.th-hz261 .back-bar{
     background: linear-gradient(to top, rgba(16,18,22,.86) 0%, rgba(16,18,22,.52) 55%, transparent 100%);
   }
-  .face.th-hz261 .back-row .sig{ font-size:23px; letter-spacing:.005em; }
+  .face.th-hz261 .back-row .sig{ font-size:18px; letter-spacing:.005em; }
   .face.th-hz261 .back-row label{ letter-spacing:.2em; }
   .face.th-hz261 .grain{ opacity:.1; }
   .face.back.th-hz261 .grain{ opacity:.07; }
+
+  /* ----- Crossword puzzle front (hz261 theme only) -----
+     The grid itself is never contenteditable — it's fully derived from the
+     word list, and hand-editing a single cell would just get overwritten on
+     the next regeneration anyway. Only the word list is a real editor. */
+  .puzzle-pad{
+    display:none; position:relative; z-index:2; width:100%; height:100%;
+    padding: 20px 26px 16px; flex-direction:column; box-sizing:border-box;
+  }
+  .face.front.th-hz261 .face-pad{ display:none; }
+  .face.front.th-hz261 .puzzle-pad{ display:flex; }
+
+  .pz-header{
+    display:flex; align-items:baseline; justify-content:space-between;
+    padding-bottom:8px; margin-bottom:10px;
+    border-bottom:1px solid rgba(67,83,111,.26);
+  }
+  .pz-kicker{
+    font-family: var(--ticket-font-label); font-size:11px; font-weight:700;
+    letter-spacing:.28em; color: var(--muted);
+  }
+  .pz-title{
+    font-family: var(--ticket-font-title); font-size:22px; font-weight:700;
+    color: var(--ink);
+  }
+  .pz-body{ flex:1; display:flex; gap:18px; min-height:0; }
+
+  /* The dark parts of the crossword board — the grid's own background
+     showing through the 1px cell gaps, and the solid blocked squares — are
+     what "the black side" means here, so the starfield goes there instead
+     of the paper margins around it. One irregular field is painted across
+     the whole grid as a single stretched image (not tiled per-cell) so the
+     dots land at genuinely random spots instead of repeating in lockstep
+     with the cell size — the empty cells stay transparent and just reveal
+     whatever part of that field falls behind them. */
+  .pz-grid{
+    display:grid; align-content:center; justify-content:center;
+    gap:1px; flex-shrink:0;
+    background-color: var(--ink);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cg fill='%23f5efd8'%3E%3Ccircle cx='18' cy='34' r='0.9' opacity='0.5'/%3E%3Ccircle cx='47' cy='12' r='0.5' opacity='0.35'/%3E%3Ccircle cx='102' cy='25' r='0.45' opacity='0.3'/%3E%3Ccircle cx='130' cy='70' r='0.7' opacity='0.4'/%3E%3Ccircle cx='158' cy='15' r='0.55' opacity='0.35'/%3E%3Ccircle cx='210' cy='40' r='0.5' opacity='0.3'/%3E%3Ccircle cx='265' cy='20' r='0.45' opacity='0.35'/%3E%3Ccircle cx='30' cy='110' r='0.6' opacity='0.35'/%3E%3Ccircle cx='95' cy='165' r='0.5' opacity='0.3'/%3E%3Ccircle cx='150' cy='155' r='0.55' opacity='0.35'/%3E%3Ccircle cx='205' cy='175' r='0.5' opacity='0.3'/%3E%3Ccircle cx='235' cy='145' r='0.6' opacity='0.35'/%3E%3Ccircle cx='20' cy='200' r='0.55' opacity='0.35'/%3E%3Ccircle cx='85' cy='255' r='0.5' opacity='0.3'/%3E%3Ccircle cx='145' cy='265' r='0.55' opacity='0.35'/%3E%3Ccircle cx='200' cy='270' r='0.45' opacity='0.3'/%3E%3Ccircle cx='230' cy='225' r='0.6' opacity='0.35'/%3E%3Ccircle cx='280' cy='120' r='0.5' opacity='0.3'/%3E%3Cpath d='M0,-3 L0.8,-0.8 L3,0 L0.8,0.8 L0,3 L-0.8,0.8 L-3,0 L-0.8,-0.8 Z' opacity='0.5' transform='translate(76,58) scale(1.1)'/%3E%3Cpath d='M0,-3 L0.8,-0.8 L3,0 L0.8,0.8 L0,3 L-0.8,0.8 L-3,0 L-0.8,-0.8 Z' opacity='0.45' transform='translate(184,92) scale(1)'/%3E%3Cpath d='M0,-3 L0.8,-0.8 L3,0 L0.8,0.8 L0,3 L-0.8,0.8 L-3,0 L-0.8,-0.8 Z' opacity='0.5' transform='translate(60,140) scale(1.1)'/%3E%3Cpath d='M0,-3 L0.8,-0.8 L3,0 L0.8,0.8 L0,3 L-0.8,0.8 L-3,0 L-0.8,-0.8 Z' opacity='0.4' transform='translate(125,120) scale(0.9)'/%3E%3Cpath d='M0,-3 L0.8,-0.8 L3,0 L0.8,0.8 L0,3 L-0.8,0.8 L-3,0 L-0.8,-0.8 Z' opacity='0.45' transform='translate(178,130) scale(1)'/%3E%3Cpath d='M0,-3 L0.8,-0.8 L3,0 L0.8,0.8 L0,3 L-0.8,0.8 L-3,0 L-0.8,-0.8 Z' opacity='0.45' transform='translate(255,255) scale(1)'/%3E%3Cpath d='M0,-3 L0.8,-0.8 L3,0 L0.8,0.8 L0,3 L-0.8,0.8 L-3,0 L-0.8,-0.8 Z' opacity='0.4' transform='translate(280,210) scale(0.9)'/%3E%3C/g%3E%3Cg transform='translate(222,52) rotate(-18)' opacity='0.4'%3E%3Ccircle cx='0' cy='0' r='4' fill='%23f5efd8'/%3E%3Cellipse cx='0' cy='0' rx='8.5' ry='2.6' fill='none' stroke='%23f5efd8' stroke-width='0.7'/%3E%3C/g%3E%3Cg transform='translate(56,192) rotate(-18)' opacity='0.4'%3E%3Ccircle cx='0' cy='0' r='4' fill='%23f5efd8'/%3E%3Cellipse cx='0' cy='0' rx='8.5' ry='2.6' fill='none' stroke='%23f5efd8' stroke-width='0.7'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-position: center;
+    border:1.5px solid var(--ink);
+  }
+  .pz-cell{
+    position:relative; background: var(--paper);
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--ticket-font-data); font-weight:700;
+    color: var(--ink); line-height:1;
+  }
+  .pz-cell.pz-empty{
+    background: transparent;
+  }
+  .pz-num{
+    position:absolute; top:1px; left:2px;
+    font-family: var(--ticket-font-label); font-weight:400;
+    font-size: 0.42em; color: var(--muted); line-height:1;
+  }
+
+  .pz-clues{ flex:1; min-width:0; display:flex; flex-direction:column; }
+  .pz-clues-label{
+    font-family: var(--ticket-font-label); font-size:10px; font-weight:700;
+    letter-spacing:.24em; color: var(--muted); margin-bottom:6px;
+  }
+  .pz-clues-list{
+    flex:1; font-family: var(--ticket-font-body); font-size:13px;
+    line-height:1.55; color: var(--ink); white-space:pre-wrap;
+    overflow:auto;
+  }
+  /* Fills the empty space under a short word list, bottom-right of the
+     puzzle front — the DATE/serial/barcode trio on the left, and a little
+     die-cut postage stamp on the right (same silhouette + orbit-and-stars
+     emblem as the "우표" from the keepsake site, just recolored to this
+     ticket's own accent and re-labelled with the frequency instead of the
+     day count) so that corner isn't left visually bare. */
+  .pz-footer{
+    margin-top:auto; padding-top:12px;
+    border-top:1px solid rgba(67,83,111,.26);
+    display:flex; flex-direction:row; align-items:flex-end;
+    justify-content:space-between; gap:12px;
+  }
+  .pz-footer-info{ display:flex; flex-direction:column; gap:7px; min-width:0; }
+  .pz-footer-date{
+    display:flex; align-items:baseline; gap:6px;
+    font-size:11px; letter-spacing:.06em; color: var(--muted);
+    font-family: var(--ticket-font-label);
+  }
+  .pz-footer-date .lbl{ letter-spacing:.2em; font-size:9px; }
+  .pz-footer-date span:last-child{ color: var(--ink); font-family: var(--ticket-font-data); }
+  .pz-footer .fr-serial{ color: var(--muted); }
+  .pz-footer .fr-code{ color: var(--accent-ink); }
+  .pz-stamp{
+    flex:none; width:76px; height:100px;
+    margin-top:-32px; /* enlarged and pulled up so it overlaps the border-top rule above it */
+    transform: rotate(-7deg);
+    filter: drop-shadow(1px 2px 3px rgba(20,22,28,.3));
+  }
+  .pz-stamp svg{ display:block; width:100%; height:100%; }
+
+  /* ---------- THEME : earth911 ----------
+     Same planet, two faces, borrowed from the reference sheet: the front is
+     the label-system / golden-hour side (a sunset wash bleeding up from the
+     bottom edge, a scatter of small sparkle-stars like the festival poster)
+     and the back — already a full-bleed photo in every theme — gets
+     recolored into the electric night-grid side (cool blue overlays instead
+     of the base theme's warm ones). A faint wireframe globe sits low in the
+     front's corner as the one literal "earth" mark. Scoped to .face, not an
+     ancestor, for the same PNG-export reason documented on the 261.626Hz
+     theme above. */
+  .face.th-earth911{
+    --e911-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cg fill='%23ff5b84' fill-opacity='0.34'%3E%3Cpath d='M0,-5 L1.27,-1.27 L5,0 L1.27,1.27 L0,5 L-1.27,1.27 L-5,0 L-1.27,-1.27 Z' transform='translate(24,30) scale(1.1)'/%3E%3Cpath d='M0,-5 L1.27,-1.27 L5,0 L1.27,1.27 L0,5 L-1.27,1.27 L-5,0 L-1.27,-1.27 Z' transform='translate(150,18) scale(0.7)'/%3E%3Cpath d='M0,-5 L1.27,-1.27 L5,0 L1.27,1.27 L0,5 L-1.27,1.27 L-5,0 L-1.27,-1.27 Z' transform='translate(90,70) scale(0.5)'/%3E%3Cpath d='M0,-5 L1.27,-1.27 L5,0 L1.27,1.27 L0,5 L-1.27,1.27 L-5,0 L-1.27,-1.27 Z' transform='translate(170,112) scale(1.3)'/%3E%3Cpath d='M0,-5 L1.27,-1.27 L5,0 L1.27,1.27 L0,5 L-1.27,1.27 L-5,0 L-1.27,-1.27 Z' transform='translate(40,140) scale(0.6)'/%3E%3Cpath d='M0,-5 L1.27,-1.27 L5,0 L1.27,1.27 L0,5 L-1.27,1.27 L-5,0 L-1.27,-1.27 Z' transform='translate(120,168) scale(0.9)'/%3E%3C/g%3E%3Cg fill='%23ff5b84' fill-opacity='0.5'%3E%3Ccircle cx='60' cy='100' r='1.2'/%3E%3Ccircle cx='10' cy='95' r='1'/%3E%3Ccircle cx='185' cy='60' r='1'/%3E%3Ccircle cx='105' cy='20' r='1'/%3E%3Ccircle cx='150' cy='150' r='1.1'/%3E%3C/g%3E%3C/svg%3E");
+    --e911-globe: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cg fill='none' stroke='%2320201c' stroke-width='1'%3E%3Ccircle cx='130' cy='130' r='120' stroke-opacity='0.16'/%3E%3Cellipse cx='130' cy='130' rx='120' ry='40' stroke-opacity='0.14'/%3E%3Cellipse cx='130' cy='130' rx='120' ry='80' stroke-opacity='0.12'/%3E%3Cellipse cx='130' cy='130' rx='40' ry='120' stroke-opacity='0.14'/%3E%3Cline x1='130' y1='10' x2='130' y2='250' stroke-opacity='0.14'/%3E%3Cline x1='10' y1='130' x2='250' y2='130' stroke-opacity='0.14'/%3E%3C/g%3E%3C/svg%3E");
+    background-image:
+      var(--e911-star),
+      var(--e911-globe),
+      linear-gradient(to top, rgba(255,130,60,.30) 0%, rgba(255,80,130,.22) 32%, rgba(255,80,130,0) 60%);
+    background-repeat: repeat, no-repeat, no-repeat;
+    background-position: 0 0, calc(100% + 40px) calc(100% + 40px), 0 100%;
+    background-size: 200px 200px, 260px 260px, 100% 60%;
+  }
+  /* The back face is always covered edge-to-edge by the photo, so its own
+     background never shows — left unset here on purpose, same as 261.626Hz. */
+  .face.back.th-earth911{ background-image:none; }
+
+  .face.th-earth911 .fr-title{ letter-spacing:-.015em; }
+  .face.th-earth911 .fr-hr{
+    height:1px; background:none;
+    border-bottom:1px solid rgba(23,21,18,.3);
+  }
+  .face.th-earth911 .watermark-row{ letter-spacing:.24em; }
+  .face.th-earth911 .field label{ letter-spacing:.2em; }
+  .face.th-earth911 .fr-brand{ letter-spacing:.14em; }
+  .face.th-earth911 .fr-serial{ color:#c23a63; letter-spacing:.08em; }
+  .face.th-earth911 .stamp-date{ border-color:#e8447a; }
+  .face.th-earth911 .stamp-date::before{ border-color:#ff8a3d; opacity:.55; }
+  .face.th-earth911 .fr-code{ color:#c23a63; }
+  .face.th-earth911 .grain{ opacity:.14; }
+  /* Dedication line locked to Mona12 (pixel stamp face) regardless of
+     whatever "hand" font role is selected — Hangul glyphs Mona12 doesn't
+     ship simply fall through to Pretendard within the same text run. */
+  .face.th-earth911 .fr-caption{
+    font-family:'Mona12','Pretendard',monospace; font-weight:400; font-style:normal;
+  }
+
+  /* Night-grid back: same photo-back layout every theme uses, recolored cool
+     instead of the base theme's warm blacks — the "electric" reference. */
+  .face.th-earth911 .vert-strip{ background: linear-gradient(180deg, rgba(8,12,18,.92), rgba(18,42,64,.72)); }
+  .face.th-earth911 .vert-strip span{ color:#9fe0ff; letter-spacing:.18em; }
+  .face.th-earth911 .back-bar{
+    background: linear-gradient(to top, rgba(6,10,16,.9) 0%, rgba(10,24,36,.55) 55%, transparent 100%);
+  }
+  .face.th-earth911 .back-row .sig{ color:#eafcff; text-shadow:0 1px 8px rgba(70,180,255,.4); }
+  .face.th-earth911 .corner-code{ background: rgba(8,16,24,.55); color:#9fe0ff; }
+  .face.th-earth911 .est{ color: rgba(200,240,255,.75); }
+  .face.th-earth911 .est b{ color:#9fe0ff; }
+  .face.th-earth911 .qr{ background:#eaf7ff; }
+  .face.back.th-earth911 .grain{ opacity:.08; }
 
   /* ---------- Crop modal ---------- */
   .crop-modal{
@@ -604,6 +783,7 @@
       <div class="theme-chips" id="themeChips">
         <button class="chip active" type="button" data-theme="base">BASE</button>
         <button class="chip" type="button" data-theme="hz261">261.626Hz</button>
+        <button class="chip" type="button" data-theme="earth911">EARTH911</button>
       </div>
     </div>
     <div class="divider"></div>
@@ -638,6 +818,15 @@
     </div>
     <div class="divider"></div>
     <div class="tool-group">
+      <span class="tool-label">Actor 수</span>
+      <div class="stepper">
+        <button class="btn small" id="actorRemoveBtn" type="button" aria-label="Actor 줄이기">−</button>
+        <span class="stepper-count" id="actorCountLabel">2</span>
+        <button class="btn small" id="actorAddBtn" type="button" aria-label="Actor 늘리기">+</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="tool-group">
       <button class="btn primary" id="syncToggleBtn" type="button" aria-pressed="true" title="같은 내용의 텍스트를 함께 편집합니다">🔗 동시편집 ON</button>
     </div>
     <div class="divider"></div>
@@ -652,7 +841,7 @@
         <div class="font-field">
           <span class="ff-name">라벨</span>
           <select class="font-select" id="labelFontSelect" aria-label="라벨 폰트"></select>
-          <span class="ff-where">Type/World/No./DATE/Actor/Ship 항목명 · 워터마크</span>
+          <span class="ff-where">Type/World/No./DATE/Actor/Pair 항목명 · 워터마크</span>
         </div>
         <div class="font-field">
           <span class="ff-name">데이터</span>
@@ -667,7 +856,7 @@
         <div class="font-field">
           <span class="ff-name">서명</span>
           <select class="font-select" id="handFontSelect" aria-label="서명 폰트"></select>
-          <span class="ff-where">앞면 대사 · 뒷면 Actor/Ship 이름</span>
+          <span class="ff-where">앞면 대사 · 뒷면 Actor/Pair 이름</span>
         </div>
       </div>
     </div>
@@ -687,27 +876,27 @@
         <div class="face front" id="faceFront">
           <div class="face-pad">
             <div class="watermark-row">
-              <span contenteditable="true" spellcheck="false">PAIR TICKET</span>
+              <span contenteditable="true" spellcheck="false" data-ct="wm-label">PAIR TICKET</span>
               <span contenteditable="true" spellcheck="false" id="topNumFront">NO. 612</span>
             </div>
 
             <div class="fr-top">
-              <div class="fr-brand">Pair:<br><b contenteditable="true" spellcheck="false">은하랑 승현이랑</b></div>
+              <div class="fr-brand">Pair:<br><b contenteditable="true" spellcheck="false" data-ct="brand-pair">은하랑 승현이랑</b></div>
               <div class="stamp-date">
                 <span class="lbl">DATE</span>
                 <span contenteditable="true" spellcheck="false" id="dateField">06.12.26</span>
               </div>
             </div>
 
-            <div class="fr-title" contenteditable="true" spellcheck="false">BAMCO</div>
+            <div class="fr-title" contenteditable="true" spellcheck="false" data-ct="title">BAMCO</div>
             <div class="fr-hr"></div>
 
             <div class="fr-grid">
               <div class="field"><label>Type</label><div class="val" contenteditable="true" spellcheck="false" id="dropField">연인</div></div>
-              <div class="field wide"><label>World</label><div class="val" contenteditable="true" spellcheck="false">블루페어리</div></div>
+              <div class="field wide"><label>World</label><div class="val" contenteditable="true" spellcheck="false" data-ct="world">블루페어리</div></div>
               <div class="field field-inline"><label>No.</label><div class="val" contenteditable="true" spellcheck="false" id="numField">612</div></div>
               <div class="field wide fr-caption-cell">
-                <div class="fr-caption" contenteditable="true" spellcheck="false">" 역시, 장승현은 도은하의 마법사였다."</div>
+                <div class="fr-caption" contenteditable="true" spellcheck="false" data-ct="caption">" 역시, 장승현은 도은하의 마법사였다."</div>
               </div>
             </div>
 
@@ -715,7 +904,68 @@
 
             <div class="fr-bottom">
               <div class="fr-serial">S. <span contenteditable="true" spellcheck="false" id="serialField">1022-1221</span></div>
-              <div class="fr-code"><span class="fr-barcode" aria-hidden="true"></span><span contenteditable="true" spellcheck="false">bamco</span></div>
+              <div class="fr-code"><span class="fr-barcode" aria-hidden="true"></span><span contenteditable="true" spellcheck="false" data-ct="code-main">bamco</span></div>
+            </div>
+          </div>
+
+          <!-- Crossword puzzle version of the front, shown only in the
+               261.626Hz theme. The grid (#pzGrid) is generated, never
+               hand-edited; only the word list below it is. -->
+          <div class="puzzle-pad">
+            <div class="pz-header">
+              <span class="pz-kicker">CROSSWORD</span>
+              <span class="pz-title" contenteditable="true" spellcheck="false" data-ct="pz-title">Find-a-BAMCO</span>
+            </div>
+            <div class="pz-body">
+              <div class="pz-grid" id="pzGrid"></div>
+              <div class="pz-clues">
+                <div class="pz-clues-label">WORDS</div>
+                <div class="pz-clues-list" id="pzCluesInput" contenteditable="true" spellcheck="false">SEUNGHYEON
+PAPICO
+MATBAM
+EUNHA
+Thank you for being my home</div>
+                <div class="pz-footer">
+                  <div class="pz-footer-info">
+                    <div class="pz-footer-date"><span class="lbl">DATE</span><span contenteditable="true" spellcheck="false" data-ct="pz-date">06.12.26</span></div>
+                    <div class="fr-serial">S. <span contenteditable="true" spellcheck="false" data-ct="pz-serial">1022-1221</span></div>
+                    <div class="fr-code"><span class="fr-barcode" aria-hidden="true"></span><span contenteditable="true" spellcheck="false" data-ct="pz-code">bamco</span></div>
+                  </div>
+                  <div class="pz-stamp" aria-hidden="true">
+                    <svg viewBox="-12 -12 228 296" width="100%" height="100%">
+                      <path d="M0,0 a8.5,8.5 0 0 1 17,0 a8.5,8.5 0 0 1 17,0 a8.5,8.5 0 0 1 17,0 a8.5,8.5 0 0 1 17,0 a8.5,8.5 0 0 1 17,0 a8.5,8.5 0 0 1 17,0 a8.5,8.5 0 0 1 17,0 a8.5,8.5 0 0 1 17,0 a8.5,8.5 0 0 1 17,0 a8.5,8.5 0 0 1 17,0 a8.5,8.5 0 0 1 17,0 a8.5,8.5 0 0 1 17,0 a8.5,8.5 0 0 1 0,17 a8.5,8.5 0 0 1 0,17 a8.5,8.5 0 0 1 0,17 a8.5,8.5 0 0 1 0,17 a8.5,8.5 0 0 1 0,17 a8.5,8.5 0 0 1 0,17 a8.5,8.5 0 0 1 0,17 a8.5,8.5 0 0 1 0,17 a8.5,8.5 0 0 1 0,17 a8.5,8.5 0 0 1 0,17 a8.5,8.5 0 0 1 0,17 a8.5,8.5 0 0 1 0,17 a8.5,8.5 0 0 1 0,17 a8.5,8.5 0 0 1 0,17 a8.5,8.5 0 0 1 0,17 a8.5,8.5 0 0 1 0,17 a8.5,8.5 0 0 1 -17,0 a8.5,8.5 0 0 1 -17,0 a8.5,8.5 0 0 1 -17,0 a8.5,8.5 0 0 1 -17,0 a8.5,8.5 0 0 1 -17,0 a8.5,8.5 0 0 1 -17,0 a8.5,8.5 0 0 1 -17,0 a8.5,8.5 0 0 1 -17,0 a8.5,8.5 0 0 1 -17,0 a8.5,8.5 0 0 1 -17,0 a8.5,8.5 0 0 1 -17,0 a8.5,8.5 0 0 1 -17,0 a8.5,8.5 0 0 1 0,-17 a8.5,8.5 0 0 1 0,-17 a8.5,8.5 0 0 1 0,-17 a8.5,8.5 0 0 1 0,-17 a8.5,8.5 0 0 1 0,-17 a8.5,8.5 0 0 1 0,-17 a8.5,8.5 0 0 1 0,-17 a8.5,8.5 0 0 1 0,-17 a8.5,8.5 0 0 1 0,-17 a8.5,8.5 0 0 1 0,-17 a8.5,8.5 0 0 1 0,-17 a8.5,8.5 0 0 1 0,-17 a8.5,8.5 0 0 1 0,-17 a8.5,8.5 0 0 1 0,-17 a8.5,8.5 0 0 1 0,-17 a8.5,8.5 0 0 1 0,-17 Z" fill="#43536f"/>
+                      <rect x="14" y="14" width="176" height="244" fill="none" stroke="#eef0f3" stroke-width="1"/>
+                      <text x="102" y="34" text-anchor="middle" font-family="var(--ticket-font-label)" font-size="12" letter-spacing="3" fill="#eef0f3">BAMCO</text>
+                      <line x1="40" y1="42" x2="164" y2="42" stroke="#eef0f3" stroke-width="0.6" opacity="0.6"/>
+                      <g transform="translate(0,-29)">
+                        <g stroke="#eef0f3" stroke-width="1.1" fill="none">
+                          <circle cx="102" cy="142" r="27"/>
+                          <path d="M75,142 C75,150 100,157 128,150" opacity="0.8"/>
+                          <path d="M77,131 C77,124 100,117 126,124" opacity="0.55"/>
+                          <ellipse cx="102" cy="142" rx="46" ry="12" transform="rotate(-14 102 142)"/>
+                        </g>
+                        <g fill="#eef0f3">
+                          <circle cx="58" cy="110" r="1.6"/>
+                          <circle cx="146" cy="118" r="1.2"/>
+                          <circle cx="150" cy="168" r="1.6"/>
+                          <circle cx="56" cy="172" r="1.2"/>
+                          <path d="M70,96 l1.6,3.6 l3.6,1.6 l-3.6,1.6 l-1.6,3.6 l-1.6,-3.6 l-3.6,-1.6 l3.6,-1.6 Z" opacity="0.9"/>
+                          <path d="M138,178 l1.3,2.8 l2.8,1.3 l-2.8,1.3 l-1.3,2.8 l-1.3,-2.8 l-2.8,-1.3 l2.8,-1.3 Z" opacity="0.75"/>
+                        </g>
+                        <text x="102" y="228" text-anchor="middle" font-family="var(--ticket-font-title)" font-size="26" fill="#eef0f3">261.626</text>
+                        <text x="102" y="248" text-anchor="middle" font-family="var(--ticket-font-label)" font-size="9" letter-spacing="3" fill="#eef0f3">Hz</text>
+                      </g>
+                      <text x="24" y="256" font-family="var(--ticket-font-label)" font-size="7" fill="#eef0f3" opacity="0.85">No. 261</text>
+                      <g transform="translate(168,38) rotate(-12)">
+                        <circle r="22" fill="none" stroke="#eef0f3" stroke-width="1"/>
+                        <circle r="16" fill="none" stroke="#eef0f3" stroke-width="0.7"/>
+                        <text y="-2" text-anchor="middle" font-family="var(--ticket-font-label)" font-size="6" fill="#eef0f3">SINCE</text>
+                        <text y="7" text-anchor="middle" font-family="var(--ticket-font-data)" font-size="6.5" fill="#eef0f3">06·12</text>
+                      </g>
+                    </svg>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <div class="grain"></div>
@@ -737,18 +987,20 @@
             </div>
             <div class="back-bar">
               <div class="back-fields">
-                <div class="back-row"><label>Actor A</label><div class="sig" contenteditable="true" spellcheck="false">도은하</div></div>
-                <div class="back-row"><label>Actor B</label><div class="sig" contenteditable="true" spellcheck="false">장승현</div></div>
-                <div class="back-row"><label>Ship</label><div class="sig" contenteditable="true" spellcheck="false">은하랑 승현이랑</div></div>
+                <div class="actor-rows" id="actorRows">
+                  <div class="back-row actor-row"><label>Actor A</label><div class="sig" contenteditable="true" spellcheck="false">도은하</div></div>
+                  <div class="back-row actor-row"><label>Actor B</label><div class="sig" contenteditable="true" spellcheck="false">장승현</div></div>
+                </div>
+                <div class="back-row"><label>Pair</label><div class="sig" contenteditable="true" spellcheck="false" data-ct="pair-sig">은하랑 승현이랑</div></div>
               </div>
               <div class="back-meta">
-                <div class="est">Est. <b contenteditable="true" spellcheck="false">2026</b></div>
+                <div class="est">Est. <b contenteditable="true" spellcheck="false" data-ct="est-year">2026</b></div>
                 <canvas class="qr" id="qrCanvas" width="42" height="42" title="장식용 QR"></canvas>
               </div>
             </div>
           </div>
 
-          <div class="vert-strip"><span contenteditable="true" spellcheck="false">TICKET</span></div>
+          <div class="vert-strip"><span contenteditable="true" spellcheck="false" data-ct="vert-strip">TICKET</span></div>
           <div class="grain"></div>
         </div>
 
@@ -1182,7 +1434,7 @@
   function prewarmExportFonts(){
     const ids = Array.from(new Set([
       selectedFonts.title, selectedFonts.label, selectedFonts.data, selectedFonts.body, selectedFonts.hand,
-      'paperlogy', 'pretendard', 'munmakcho'
+      'paperlogy', 'pretendard', 'munmakcho', 'mona12'
     ]));
     ids.forEach(id=> { try{ ensureFontExported(id); }catch(e){ /* picked up again at save time */ } });
   }
@@ -1223,7 +1475,30 @@
       line:'rgba(67,83,111,0.22)',
       lineStrong:'rgba(67,83,111,0.45)',
       fonts:{ title:'spacegrotesk', label:'spacemono', data:'spacemono', body:'spacemono', hand:'instrumentserif' },
-      faceClass:'th-hz261'
+      faceClass:'th-hz261',
+      // A dedication theme made for one specific pair — colors and text are
+      // meant to stay exactly as set, so switching to it locks editing
+      // everywhere until you switch back to BASE.
+      lock:true
+    },
+    // A poster/label-system theme rather than a paper-and-ink one: warm
+    // near-white ground, hot-pink accent, Paperlogy for the structural
+    // title (matches the grid/spec-sheet references) and Yidstreet for the
+    // signature role, closer to a spray-tag than a handwritten name. Not
+    // locked — this one's meant to be filled in and customized like BASE.
+    earth911: {
+      accent:'#e8447a',
+      paper:'#f6f3e9',
+      ink:'#171512',
+      muted:'#8c8577',
+      line:'rgba(23,21,18,0.18)',
+      lineStrong:'rgba(23,21,18,0.4)',
+      fonts:{ title:'paperlogy', label:'spacemono', data:'spacemono', body:'spacemono', hand:'yidstreet' },
+      faceClass:'th-earth911',
+      // Now a second dedication theme, made for one specific pair just like
+      // 261.626Hz — locks editing everywhere while active, restoring BASE's
+      // own content when you switch back to it.
+      lock:true
     }
   };
   const THEME_FACE_CLASSES = Object.keys(THEMES)
@@ -1231,6 +1506,40 @@
 
   const themeChips = document.querySelectorAll('#themeChips .chip');
   const themeFaces = [document.getElementById('faceFront'), document.getElementById('faceBack')];
+
+  // Set true only while a locked theme (261.626Hz or EARTH911) is active.
+  // Referenced by code defined further down (actor rows, stamp button)
+  // which only ever runs at click-time, well after this whole script has
+  // finished loading.
+  let contentLocked = false;
+  // Each locked theme's dedication content, plus whatever's being typed
+  // under the one unlocked theme (BASE), live in three separate snapshots
+  // so switching themes can never leak one into another. hz261Snapshot is
+  // captured for real once every editable field exists — see the bottom of
+  // this script — and never overwritten again after that first capture,
+  // since that theme itself can't be edited. earth911Snapshot is built
+  // right after from a clone of BASE's own snapshot with its fixed fields
+  // overridden (see the bottom of this script), rather than from the live
+  // DOM, since the DOM at load time holds BASE/hz261's content, not EARTH911's.
+  let hz261Snapshot = null;
+  let earth911Snapshot = null;
+  let otherSnapshot = null;
+  function setContentLocked(locked){
+    contentLocked = locked;
+    themeFaces.forEach(f=>{
+      f.querySelectorAll('[contenteditable]').forEach(el=>{
+        el.contentEditable = locked ? 'false' : 'true';
+      });
+    });
+    [accentPickerWrap, paperPickerWrap, ...accentSwatches, ...paperSwatches].forEach(el=>{
+      el.disabled = locked;
+    });
+    Object.keys(FONT_ROLES).forEach(role=>{
+      document.getElementById(FONT_ROLES[role].selectId).disabled = locked;
+    });
+    stampBtn.disabled = locked;
+    refreshActorUI();
+  }
 
   function syncSwatchTo(list, attr, hex, setActive, pickerWrap){
     const match = Array.from(list).find(s=>(s.dataset[attr]||'').toLowerCase() === hex.toLowerCase());
@@ -1241,6 +1550,18 @@
   function applyTheme(id){
     const t = THEMES[id];
     if(!t) return;
+    const enteringLocked = !!t.lock;
+
+    // Swap the whole editable content set only when crossing the
+    // locked/unlocked boundary. Going locked->locked (hz261 <-> EARTH911)
+    // needs no save first, since locked content can't have been edited —
+    // just load the target theme's own fixed snapshot directly.
+    if(enteringLocked){
+      if(!contentLocked) otherSnapshot = captureContent();
+      applyContent(id === 'hz261' ? hz261Snapshot : earth911Snapshot);
+    } else if(!enteringLocked && contentLocked){
+      applyContent(otherSnapshot);
+    }
 
     themeFaces.forEach(f=>{
       THEME_FACE_CLASSES.forEach(c=> f.classList.remove(c));
@@ -1263,6 +1584,7 @@
     syncSwatchTo(paperSwatches, 'paper', t.paper, setPaperActive, paperPickerWrap);
 
     themeChips.forEach(c=> c.classList.toggle('active', c.dataset.theme === id));
+    setContentLocked(enteringLocked);
   }
 
   themeChips.forEach(chip=>{
@@ -1332,9 +1654,13 @@
 
   const linkedEditableEls = Array.from(document.querySelectorAll('[contenteditable]'));
   const lastEditableValues = new WeakMap();
-  linkedEditableEls.forEach(el => lastEditableValues.set(el, el.textContent));
 
-  linkedEditableEls.forEach(el => {
+  // Pulled out of the original init loop so newly-created fields (extra
+  // Actor rows added after load) can join the same sync group instead of
+  // only ever matching each other's default text on page load.
+  function wireLinkedEditable(el){
+    lastEditableValues.set(el, el.textContent);
+    linkedEditableEls.push(el);
     el.addEventListener('input', () => {
       const newVal = el.textContent;
       if(syncEnabled){
@@ -1351,7 +1677,60 @@
       }
       lastEditableValues.set(el, newVal);
     });
-  });
+  }
+  // Iterating this same array while wireLinkedEditable() pushes onto it is
+  // safe: forEach() only ever visits the range that existed when it started.
+  linkedEditableEls.forEach(wireLinkedEditable);
+
+  /* ---------------- Actor row count (+/-) ----------------
+     Lives in the toolbar rather than on the ticket face itself, since the
+     PNG export clones the face verbatim — a control button left inside it
+     would end up baked into the saved image. */
+  const actorRowsEl = document.getElementById('actorRows');
+  const actorAddBtn = document.getElementById('actorAddBtn');
+  const actorRemoveBtn = document.getElementById('actorRemoveBtn');
+  const actorCountLabel = document.getElementById('actorCountLabel');
+  const MIN_ACTORS = 1, MAX_ACTORS = 6;
+
+  function actorLabel(i){
+    return 'Actor ' + String.fromCharCode(65 + i); // 0->A, 1->B, ...
+  }
+
+  function refreshActorUI(){
+    const n = actorRowsEl.children.length;
+    Array.from(actorRowsEl.children).forEach((row, i)=>{
+      row.querySelector('label').textContent = actorLabel(i);
+    });
+    actorCountLabel.textContent = n;
+    actorAddBtn.disabled = contentLocked || n >= MAX_ACTORS;
+    actorRemoveBtn.disabled = contentLocked || n <= MIN_ACTORS;
+  }
+
+  function addActorRow(){
+    if(contentLocked || actorRowsEl.children.length >= MAX_ACTORS) return;
+    const row = document.createElement('div');
+    row.className = 'back-row actor-row';
+    const label = document.createElement('label');
+    const sig = document.createElement('div');
+    sig.className = 'sig';
+    sig.contentEditable = 'true';
+    sig.spellcheck = false;
+    row.appendChild(label);
+    row.appendChild(sig);
+    actorRowsEl.appendChild(row);
+    wireLinkedEditable(sig);
+    refreshActorUI();
+  }
+
+  function removeActorRow(){
+    if(contentLocked || actorRowsEl.children.length <= MIN_ACTORS) return;
+    actorRowsEl.removeChild(actorRowsEl.lastElementChild);
+    refreshActorUI();
+  }
+
+  actorAddBtn.addEventListener('click', addActorRow);
+  actorRemoveBtn.addEventListener('click', removeActorRow);
+  refreshActorUI();
 
   // Front watermark number and back corner-code number: same ticket number,
   // shown with different prefixes ("NO. " vs "No. "), so a plain exact-text
@@ -1498,6 +1877,296 @@
     }
   }
   drawQR();
+
+  /* ---------------- Crossword puzzle (261.626Hz theme front) ----------------
+     The word list (#pzCluesInput) is the only editable part; the grid
+     (#pzGrid) is fully derived from it and rebuilt from scratch on every
+     change, so there's nothing in it to hand-edit. */
+  function generateCrossword(entries){
+    // entries: [{display, letters}] — `letters` (A-Z/0-9 only, no spaces)
+    // is what actually goes in the grid; `display` is what the clue list
+    // shows, so "Over The Moon" can occupy one contiguous run of cells
+    // while still reading naturally in the word list.
+    const words = entries.filter(e=>e.letters.length>0);
+    if(!words.length) return null;
+    words.sort((a,b)=> b.letters.length - a.letters.length);
+
+    const SIZE = 34;
+    const CX = Math.floor(SIZE/2);
+    const grid = Array.from({length:SIZE}, ()=> Array(SIZE).fill(null));
+    const placements = []; // {entry, row, col, dir}
+
+    function cell(r,c){ return (r>=0&&r<SIZE&&c>=0&&c<SIZE) ? grid[r][c] : 'OOB'; }
+
+    function canPlace(letters, row, col, dir){
+      for(let i=0;i<letters.length;i++){
+        const r = dir==='D' ? row+i : row;
+        const c = dir==='A' ? col+i : col;
+        const existing = cell(r,c);
+        if(existing === 'OOB') return false;
+        if(existing !== null && existing !== letters[i]) return false;
+        if(existing === null){
+          // an empty cell along the word's own run must not already touch
+          // a perpendicular neighbour, or this would silently fuse two
+          // words together with no shared-letter intent
+          if(dir==='A'){ if(cell(r-1,c)!==null || cell(r+1,c)!==null) return false; }
+          else { if(cell(r,c-1)!==null || cell(r,c+1)!==null) return false; }
+        }
+      }
+      // the two cells immediately before/after the word must be empty too,
+      // or it would run straight into another word end-to-end
+      if(dir==='A'){ if(cell(row,col-1)!==null || cell(row,col+letters.length)!==null) return false; }
+      else { if(cell(row-1,col)!==null || cell(row+letters.length,col)!==null) return false; }
+      return true;
+    }
+
+    function place(entry, row, col, dir){
+      for(let i=0;i<entry.letters.length;i++){
+        const r = dir==='D' ? row+i : row;
+        const c = dir==='A' ? col+i : col;
+        grid[r][c] = entry.letters[i];
+      }
+      placements.push({entry, row, col, dir});
+    }
+
+    const first = words[0];
+    place(first, CX, CX - Math.floor(first.letters.length/2), 'A');
+
+    for(let wi=1; wi<words.length; wi++){
+      const entry = words[wi];
+      let best = null;
+      outer:
+      for(const p of placements){
+        for(let pi=0; pi<p.entry.letters.length; pi++){
+          const letter = p.entry.letters[pi];
+          for(let li=0; li<entry.letters.length; li++){
+            if(entry.letters[li] !== letter) continue;
+            const dir = p.dir === 'A' ? 'D' : 'A';
+            const row = dir==='D' ? p.row - li : p.row + pi;
+            const col = dir==='A' ? p.col - li : p.col + pi;
+            if(canPlace(entry.letters, row, col, dir)){ best = {row,col,dir}; break outer; }
+          }
+        }
+      }
+      if(best){
+        place(entry, best.row, best.col, best.dir);
+      } else {
+        // no crossing spot found — drop it in as its own row below
+        // whatever's placed so far rather than losing the word entirely
+        let maxR = 0;
+        placements.forEach(p=>{
+          const len = p.entry.letters.length;
+          maxR = Math.max(maxR, p.dir==='D' ? p.row+len-1 : p.row);
+        });
+        const row = Math.min(SIZE-1, maxR+2);
+        const col = Math.max(0, CX - Math.floor(entry.letters.length/2));
+        if(canPlace(entry.letters, row, col, 'A')) place(entry, row, col, 'A');
+      }
+    }
+
+    let minR=SIZE, maxR=0, minC=SIZE, maxC=0;
+    placements.forEach(p=>{
+      const len = p.entry.letters.length;
+      const r1 = p.dir==='D' ? p.row+len-1 : p.row;
+      const c1 = p.dir==='A' ? p.col+len-1 : p.col;
+      minR=Math.min(minR,p.row); maxR=Math.max(maxR,r1);
+      minC=Math.min(minC,p.col); maxC=Math.max(maxC,c1);
+    });
+    const rows = maxR-minR+1, cols = maxC-minC+1;
+    const trimmed = Array.from({length:rows}, ()=> Array(cols).fill(null));
+    for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) trimmed[r][c] = grid[minR+r][minC+c];
+
+    const numbers = Array.from({length:rows}, ()=> Array(cols).fill(null));
+    let num = 1;
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        if(trimmed[r][c]===null) continue;
+        const startsAcross = (c===0 || trimmed[r][c-1]===null) && (c+1<cols && trimmed[r][c+1]!==null);
+        const startsDown = (r===0 || trimmed[r-1][c]===null) && (r+1<rows && trimmed[r+1][c]!==null);
+        if(startsAcross || startsDown) numbers[r][c] = num++;
+      }
+    }
+
+    const clues = placements.map(p=>{
+      const r = p.row-minR, c = p.col-minC;
+      return { number: numbers[r][c] || 0, display: p.entry.display };
+    }).sort((a,b)=> a.number-b.number);
+
+    return { grid:trimmed, numbers, rows, cols, clues };
+  }
+
+  function parsePuzzleWordList(text){
+    return text.split('\n')
+      .map(line=> line.replace(/^\s*\d+[.)]\s*/, '').trim())
+      .filter(Boolean)
+      .map(display=> ({ display, letters: display.toUpperCase().replace(/[^A-Z0-9]/g,'') }))
+      .filter(e=> e.letters.length>0);
+  }
+
+  const pzGrid = document.getElementById('pzGrid');
+  const pzCluesInput = document.getElementById('pzCluesInput');
+
+  // .innerText depends on the element actually being rendered (it silently
+  // drops <br>-based line breaks on a display:none ancestor, which is
+  // exactly the puzzle-pad's state whenever a non-hz261 theme is active).
+  // This reads line breaks straight from the markup instead, so it works
+  // the same whether the puzzle pad is visible or hidden.
+  function pzGetText(){
+    return pzCluesInput.innerHTML
+      .split(/<br\s*\/?>/i)
+      .map(line=>{
+        const tmp = document.createElement('div');
+        tmp.innerHTML = line;
+        return tmp.textContent;
+      })
+      .join('\n');
+  }
+
+  function renderPuzzleGrid(){
+    const entries = parsePuzzleWordList(pzGetText() || '');
+    const result = entries.length ? generateCrossword(entries) : null;
+    pzGrid.innerHTML = '';
+    if(!result){ pzGrid.style.gridTemplateColumns = ''; return; }
+
+    // fit the grid into roughly the space the puzzle-pad's left column has
+    // to work with, without it ever growing large enough to overflow
+    const cellPx = Math.max(14, Math.min(30, Math.floor(220/Math.max(result.rows,result.cols))));
+    pzGrid.style.gridTemplateColumns = `repeat(${result.cols}, ${cellPx}px)`;
+    pzGrid.style.gridTemplateRows = `repeat(${result.rows}, ${cellPx}px)`;
+    pzGrid.style.fontSize = `${Math.max(10, cellPx*0.52)}px`;
+
+    for(let r=0;r<result.rows;r++){
+      for(let c=0;c<result.cols;c++){
+        const letter = result.grid[r][c];
+        const div = document.createElement('div');
+        if(letter===null){
+          div.className = 'pz-cell pz-empty';
+        } else {
+          div.className = 'pz-cell';
+          const n = result.numbers[r][c];
+          if(n) div.innerHTML = `<span class="pz-num">${n}</span>${letter}`;
+          else div.textContent = letter;
+        }
+        pzGrid.appendChild(div);
+      }
+    }
+    return result;
+  }
+
+  function reformatPuzzleClues(){
+    const result = renderPuzzleGrid();
+    if(!result) return;
+    pzCluesInput.innerText = result.clues.map(c=> `${c.number}. ${c.display}`).join('\n');
+  }
+
+  let pzInputTimer = null;
+  pzCluesInput.addEventListener('input', ()=>{
+    clearTimeout(pzInputTimer);
+    pzInputTimer = setTimeout(renderPuzzleGrid, 250);
+  });
+  pzCluesInput.addEventListener('blur', reformatPuzzleClues);
+  reformatPuzzleClues();
+
+  /* ---------------- Per-theme content snapshot / restore ----------------
+     Every editable field is either matched by id (fields that already had
+     one for other reasons) or by a data-ct key added just for this. The
+     actor rows and the crossword word list are captured whole, since one
+     is a variable-length list of DOM nodes and the other drives a
+     generated grid rather than being read back verbatim. */
+  const CT_IDS = ['topNumFront','dateField','dropField','numField','serialField','topNumBack'];
+  const CT_KEYS = [
+    'wm-label','brand-pair','title','world','caption','code-main',
+    'pz-title','pz-date','pz-serial','pz-code','pair-sig','est-year','vert-strip'
+  ];
+
+  function captureContent(){
+    const data = {
+      ids:{}, keys:{},
+      actorRowsHTML: actorRowsEl.innerHTML,
+      puzzleWords: pzGetText()
+    };
+    CT_IDS.forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) data.ids[id] = el.innerHTML;
+    });
+    CT_KEYS.forEach(key=>{
+      const el = document.querySelector(`[data-ct="${key}"]`);
+      if(el) data.keys[key] = el.innerHTML;
+    });
+    return data;
+  }
+
+  // Re-baselines the linked-sync tracker for a restored element so the next
+  // keystroke doesn't cascade into fields it no longer actually matches.
+  function resyncLinked(el){
+    if(el && lastEditableValues.has(el)) lastEditableValues.set(el, el.textContent);
+  }
+
+  function applyContent(data){
+    if(!data) return;
+    CT_IDS.forEach(id=>{
+      if(data.ids[id] === undefined) return;
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.innerHTML = data.ids[id];
+      resyncLinked(el);
+    });
+    CT_KEYS.forEach(key=>{
+      if(data.keys[key] === undefined) return;
+      const el = document.querySelector(`[data-ct="${key}"]`);
+      if(!el) return;
+      el.innerHTML = data.keys[key];
+      resyncLinked(el);
+    });
+    if(data.actorRowsHTML !== undefined){
+      actorRowsEl.innerHTML = data.actorRowsHTML;
+      // Fresh DOM nodes from innerHTML aren't wired into the linked-sync
+      // group yet, and their contentEditable state gets corrected right
+      // after by setContentLocked() back in applyTheme.
+      Array.from(actorRowsEl.querySelectorAll('.sig')).forEach(wireLinkedEditable);
+    }
+    if(data.puzzleWords !== undefined){
+      pzCluesInput.innerText = data.puzzleWords;
+      resyncLinked(pzCluesInput);
+      renderPuzzleGrid();
+    }
+    refreshActorUI();
+  }
+
+  // The very first capture, taken once every field above is guaranteed to
+  // exist and before anyone has had a chance to type anything: this is
+  // permanently the 261.626Hz dedication content. otherSnapshot starts as
+  // an identical copy so BASE looks the same until edited.
+  hz261Snapshot = captureContent();
+  otherSnapshot = captureContent();
+
+  // EARTH911's own fixed dedication ("재언의 지구"), built as a clone of
+  // BASE's snapshot with just its fields overridden — anything not listed
+  // here (the crossword-page fields, since EARTH911 never shows the
+  // puzzle-pad, and the back vertical-strip label) simply carries over
+  // BASE's default text, which is never seen anyway.
+  earth911Snapshot = JSON.parse(JSON.stringify(otherSnapshot));
+  Object.assign(earth911Snapshot.ids, {
+    topNumFront: 'NO. 715',
+    dateField: '07.15.26',
+    dropField: '연인',
+    numField: '715',
+    serialField: '2026-0805',
+    topNumBack: 'No. 715'
+  });
+  Object.assign(earth911Snapshot.keys, {
+    'wm-label': 'PAIR TICKET',
+    'brand-pair': '재언의 지구',
+    'title': '#소꿉친구의선은어디까지인가',
+    'world': 'earth',
+    'caption': '"그래도... 그래도 말하게 해줘. 좋아해, 지구야. 아주 오랫동안, 내가 기억하지도 못하는 아주 처음부터... 계속 너를 좋아했어."',
+    'code-main': 'EARTH911',
+    'pair-sig': '재언의 지구',
+    'est-year': '2026'
+  });
+  earth911Snapshot.actorRowsHTML =
+    '<div class="back-row actor-row"><label>Actor A</label><div class="sig" contenteditable="true" spellcheck="false">기재언</div></div>' +
+    '<div class="back-row actor-row"><label>Actor B</label><div class="sig" contenteditable="true" spellcheck="false">최지구</div></div>';
 
   /* =================================================================
      WYSIWYG EXPORT — renders the *actual* DOM (with real CSS clip-path/
@@ -1676,7 +2345,7 @@
     // in the saved PNG even though the live page looks right.
     const ids = Array.from(new Set([
       selectedFonts.title, selectedFonts.label, selectedFonts.data, selectedFonts.body, selectedFonts.hand,
-      'paperlogy', 'pretendard', 'munmakcho'
+      'paperlogy', 'pretendard', 'munmakcho', 'mona12'
     ]));
     // allSettled, not all: one font id throwing (an unexpected bug in
     // ensureFontExported, not just a fetch failure — those are already
@@ -1790,19 +2459,41 @@
       `<style>${escapeForXmlText(styleText)}</style>${xhtml}`+
       `</div></foreignObject></svg>`;
 
-    // A blob: URL is used instead of a data: URI here: once several fonts
-    // are base64-embedded the SVG markup can run into several MB, and some
-    // browsers (Safari in particular) cap data: URI length and simply fail
-    // to decode the image past that point — this was another source of the
-    // "이미지를 불러오지 못했습니다" export failure. Blob URLs have no such
-    // practical size ceiling.
-    const svgBlob = new Blob([svgMarkup], { type:'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(svgBlob);
+    // A data: URI is the primary path here, not a blob: URL. Per the SVG/
+    // canvas security model, a foreignObject-bearing SVG referenced through
+    // a data: URI never taints the resulting canvas in ANY browser — but
+    // the same SVG referenced through a blob: URL DOES taint the canvas in
+    // most current Chromium and WebKit builds regardless of what the
+    // foreignObject actually contains (only a very recent Chromium change
+    // starts to match Firefox's more permissive blob: behaviour, and it
+    // isn't universal yet). That blob-vs-data mismatch — not fonts, not
+    // images, not anything actually referenced externally — was the real,
+    // consistent cause of "Tainted canvases may not be exported" here.
+    // A data: URI does still hit a hard length ceiling in some browsers
+    // once several fonts are base64-embedded, so a blob: URL is kept as a
+    // fallback for that rare oversized case, accepting the small taint
+    // risk there rather than failing the export outright.
+    function toBase64Utf8(str){
+      // btoa() only accepts Latin1 code points; the ticket's own text is
+      // Korean, so encode to UTF-8 bytes first rather than trying to
+      // escape/unescape the string in place.
+      const bytes = new TextEncoder().encode(str);
+      let binary = '';
+      const chunk = 0x8000;
+      for(let i=0; i<bytes.length; i+=chunk){
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i+chunk));
+      }
+      return btoa(binary);
+    }
     let img;
     try{
-      img = await loadImg(url);
-    } finally {
-      URL.revokeObjectURL(url);
+      const dataUri = 'data:image/svg+xml;charset=utf-8;base64,' + toBase64Utf8(svgMarkup);
+      img = await loadImg(dataUri);
+    }catch(e){
+      const svgBlob = new Blob([svgMarkup], { type:'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+      try{ img = await loadImg(url); }
+      finally{ URL.revokeObjectURL(url); }
     }
     // small delay so embedded webfonts finish applying before paint
     await new Promise(r=>setTimeout(r, 60));
@@ -1912,13 +2603,15 @@
       ctx.font = `${12*SCALE}px 'Space Mono', monospace`;
       ctx.textBaseline = 'alphabetic';
 
+      const dateLabel = (document.getElementById('dateField').textContent || '').trim() || 'A.01';
+
       let y = pad;
-      ctx.fillText('FRONT · A.01', pad, y + labelH*0.65);
+      ctx.fillText(`FRONT · ${dateLabel}`, pad, y + labelH*0.65);
       y += labelH;
       ctx.drawImage(frontCanvas, pad + (contentW-frontCanvas.width)/2, y);
       y += frontCanvas.height + gap;
 
-      ctx.fillText('BACK · A.01', pad, y + labelH*0.65);
+      ctx.fillText(`BACK · ${dateLabel}`, pad, y + labelH*0.65);
       y += labelH;
       ctx.drawImage(backCanvas, pad + (contentW-backCanvas.width)/2, y);
 
