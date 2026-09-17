@@ -2,17 +2,21 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
 <title>TOKEN TICKET — Maker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono:wght@400;700&family=Caveat:wght@500;700&family=Space+Grotesk:wght@500;700&family=Instrument+Serif:ital@1&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono:wght@400;700&family=Caveat:wght@500;700&family=Space+Grotesk:wght@500;700&family=Instrument+Serif:ital@1&family=Mrs+Saint+Delafield&family=DotGothic16&family=Yomogi&family=Klee+One:wght@400;600&family=Kiwi+Maru:wght@300;400;500&family=Cherry+Bomb+One&family=Hachi+Maru+Pop&family=Reggae+One&family=Dela+Gothic+One&family=RocknRoll+One&family=Shippori+Mincho:wght@400;500;600;700;800&family=Yuji+Syuku&display=swap" rel="stylesheet">
 <!-- 프리텐다드 : 본문/고딕 -->
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
 <!-- 페이퍼로지 : 구조적 타이틀/숫자 -->
 <link href="https://cdn.jsdelivr.net/gh/Freesentation/paperlogy@main/Paperlogy.css" rel="stylesheet">
 <!-- Mona12 : 픽셀 스탬프 -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/MonadABXY/mona-font/web/mona.css">
+<!-- LXGW WenKai : 일본어(카나/한자) 대응 CJK 서체 — FONT_DEFS에는 있었지만 head에 link가 빠져
+     미리보기에서 로드가 안 되던 것을 수정 -->
+<link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/style.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css" rel="stylesheet">
 <style id="customFontFaces">
 @font-face{
@@ -39,6 +43,24 @@
 @font-face{
   font-family:'Yidstreet';
   src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2110@1.0/YdestreetB.woff2') format('woff2');
+  font-weight:700; font-display:swap;
+}
+/* Below three were referenced in FONT_DEFS for the iino theme but never
+   actually declared here, so they silently failed to render in live
+   preview (export still worked since it fetches these on demand). */
+@font-face{
+  font-family:'SchoolSafeUniverse';
+  src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-2@1.0/HakgyoansimWoojuR.woff2') format('woff2');
+  font-weight:normal; font-display:swap;
+}
+@font-face{
+  font-family:'SchoolSafetyChalk';
+  src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-2@1.0/HakgyoansimBunpilR.woff2') format('woff2');
+  font-weight:normal; font-display:swap;
+}
+@font-face{
+  font-family:'Galmuri11';
+  src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2506-1@1.0/Galmuri11-Bold.woff2') format('woff2');
   font-weight:700; font-display:swap;
 }
 </style>
@@ -83,7 +105,7 @@
       radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,255,255,.05), transparent 60%),
       var(--bg);
     color:#eee;
-    font-family:'Space Mono', monospace;
+    font-family:'JoseonGulim', 'Space Mono', monospace;
     overflow-x:hidden;
     min-height:100vh;
     display:flex;
@@ -129,7 +151,7 @@
   .divider{ width:1px; height:22px; background:rgba(255,255,255,.12); }
 
   .btn{
-    font-family:'Space Mono', monospace; font-size:11px; letter-spacing:.05em;
+    font-family:'JoseonGulim', 'Space Mono', monospace; font-size:11px; letter-spacing:.05em;
     color:#eee; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
     padding:8px 12px; border-radius:7px; cursor:pointer;
     transition: background .15s ease, transform .1s ease, border-color .15s ease;
@@ -147,7 +169,7 @@
   .stepper{ display:flex; align-items:center; gap:8px; }
   .btn.small{ padding:5px 10px; font-size:13px; line-height:1; }
   .stepper-count{
-    font-family:'Space Mono', monospace; font-size:12px; color:#eee;
+    font-family:'JoseonGulim', 'Space Mono', monospace; font-size:12px; color:#eee;
     min-width:14px; text-align:center;
   }
 
@@ -184,7 +206,7 @@
     background:#141311; border:1px solid rgba(255,255,255,.12);
     border-radius:11px; padding:11px;
     box-shadow:0 24px 60px -16px rgba(0,0,0,.8), 0 2px 8px rgba(0,0,0,.5);
-    font-family:'Space Mono', monospace;
+    font-family:'JoseonGulim', 'Space Mono', monospace;
     display:flex; flex-direction:column; gap:9px;
     cursor:auto;
   }
@@ -230,7 +252,7 @@
   }
   .cp-hex{
     flex:1; min-width:0;
-    font-family:'Space Mono', monospace; font-size:11px; letter-spacing:.06em;
+    font-family:'JoseonGulim', 'Space Mono', monospace; font-size:16px; letter-spacing:.06em;
     text-transform:uppercase;
     color:#eee; background:rgba(255,255,255,.06);
     border:1px solid rgba(255,255,255,.14); border-radius:6px;
@@ -245,6 +267,19 @@
     border:1px solid rgba(255,255,255,.22);
   }
   .cp-recent button:hover{ border-color:#fff; }
+
+  /* ---------- Login popover (reuses .cp-pop's look) ---------- */
+  .login-pop{ width:190px; }
+  .login-field{
+    width:100%; font-family:'JoseonGulim', 'Space Mono', monospace; font-size:16px;
+    color:#eee; background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.14); border-radius:6px;
+    padding:7px 9px;
+  }
+  .login-field:focus{ outline:none; border-color:rgba(255,255,255,.4); }
+  .login-error{ font-size:10.5px; color:#e5493f; letter-spacing:.02em; line-height:1.4; }
+  .login-error[hidden]{ display:none; }
+  #loginBtn.logged-in{ background:rgba(76,175,125,.16); border-color:rgba(76,175,125,.45); color:#bfe8d2; }
 
   /* ---------- Font role fields ----------
      This is its own full-width block (not squeezed into the toolbar's
@@ -274,7 +309,7 @@
     font-style:normal; line-height:1.4;
   }
   .font-select{
-    font-family:'Space Mono', monospace; font-size:11px; letter-spacing:.02em;
+    font-family:'JoseonGulim', 'Space Mono', monospace; font-size:11px; letter-spacing:.02em;
     color:#eee; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
     padding:7px 9px; border-radius:6px; cursor:pointer; width:100%;
   }
@@ -285,12 +320,15 @@
     .font-field{ display:block; padding-bottom:10px; }
     .font-field .ff-name{ display:block; margin-bottom:4px; }
     .font-select{ display:block; margin-bottom:4px; }
+    /* 16px+ keeps iOS Safari from auto-zooming the whole page when this
+       is focused/tapped — below 16px it zooms in on every open. */
+    .font-select{ font-size:16px; }
   }
 
   /* ---------- Theme chips ---------- */
   .theme-chips{ display:flex; gap:6px; }
   .chip{
-    font-family:'Space Mono', monospace; font-size:10px; letter-spacing:.08em;
+    font-family:'JoseonGulim', 'Space Mono', monospace; font-size:10px; letter-spacing:.08em;
     color:#cfcabf; background:rgba(255,255,255,.05);
     border:1px solid rgba(255,255,255,.14); border-radius:999px;
     padding:5px 11px; cursor:pointer; white-space:nowrap;
@@ -366,7 +404,11 @@
   /* ----- FRONT layout ----- */
   .watermark-row{
     display:flex; justify-content:space-between; font-size:10px; letter-spacing:.14em;
-    color: rgba(28,25,20,.32); font-weight:700; text-transform:uppercase;
+    /* Matches the stamp's own ink color (--accent-ink) instead of a fixed
+       dark tone, so it follows whichever 도장색 is currently chosen. Kept
+       translucent via opacity (rather than baking alpha into the color)
+       so it still reads as a watermark rather than a solid heading. */
+    color: var(--accent-ink); opacity:.42; font-weight:700; text-transform:uppercase;
     font-family:var(--ticket-font-data);
   }
   .fr-top{ display:flex; justify-content:space-between; align-items:flex-start; margin-top:10px; }
@@ -713,6 +755,54 @@
   .face.th-earth911 .qr{ background:#eaf7ff; }
   .face.back.th-earth911 .grain{ opacity:.08; }
 
+  /* 飯野夫婦 (iino): pale summer sky fading into sun-warmed cream, a
+     drifting cumulus cloud bleeding off the bottom-right corner, and a
+     faint row of grass-blade strokes for the rice-paddy road underfoot.
+     Kept quiet on purpose — same low-opacity-texture approach as the
+     other two dedication themes. */
+  .face.th-iino{
+    --iino-cloud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='180'%3E%3Cg fill='%23ffffff' fill-opacity='0.55'%3E%3Ccircle cx='60' cy='112' r='40'/%3E%3Ccircle cx='108' cy='90' r='52'/%3E%3Ccircle cx='168' cy='100' r='44'/%3E%3Ccircle cx='208' cy='122' r='32'/%3E%3Ccircle cx='128' cy='132' r='48'/%3E%3C/g%3E%3C/svg%3E");
+    --iino-grass: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='26'%3E%3Cg stroke='%235c7a52' stroke-opacity='0.16' stroke-width='1.4' stroke-linecap='round' fill='none'%3E%3Cpath d='M6 26 Q4 15 8 4'/%3E%3Cpath d='M20 26 Q22 13 18 2'/%3E%3Cpath d='M34 26 Q32 16 37 5'/%3E%3Cpath d='M48 26 Q50 14 46 3'/%3E%3C/g%3E%3C/svg%3E");
+    background-image:
+      var(--iino-grass),
+      var(--iino-cloud),
+      linear-gradient(to bottom, rgba(148,196,224,.32) 0%, rgba(148,196,224,0) 42%);
+    background-repeat: repeat, no-repeat, no-repeat;
+    background-position: 0 100%, calc(100% + 30px) calc(100% + 30px), 0 0;
+    background-size: 60px 26px, 260px 180px, 100% 55%;
+  }
+  /* The back face is always covered edge-to-edge by the photo, so its own
+     background never shows — left unset here on purpose, same as the
+     other two dedication themes. */
+  .face.back.th-iino{ background-image:none; }
+
+  .face.th-iino .fr-title{ letter-spacing:-.01em; }
+  .face.th-iino .fr-hr{
+    height:1px; background:none;
+    border-bottom:1px solid rgba(44,42,32,.3);
+  }
+  .face.th-iino .watermark-row{ letter-spacing:.22em; }
+  .face.th-iino .field label{ letter-spacing:.16em; }
+  .face.th-iino .fr-brand{ letter-spacing:.1em; }
+  .face.th-iino .fr-serial{ color:#5c7a52; letter-spacing:.08em; }
+  .face.th-iino .stamp-date{ border-color:#5c7a52; }
+  .face.th-iino .stamp-date::before{ border-color:#c17a4a; opacity:.55; }
+  .face.th-iino .fr-code{ color:#5c7a52; }
+  .face.th-iino .grain{ opacity:.12; }
+
+  /* Warm dusk-toned back, same photo-back layout every theme uses. */
+  .face.th-iino .vert-strip{ background: linear-gradient(180deg, rgba(30,32,20,.86), rgba(60,66,40,.62)); }
+  .face.th-iino .vert-strip span{ color:#f2ecd8; letter-spacing:.18em; }
+  .face.th-iino .back-bar{
+    background: linear-gradient(to top, rgba(26,24,14,.88) 0%, rgba(46,50,28,.5) 55%, transparent 100%);
+  }
+  .face.th-iino .back-row .sig{ color:#faf6e8; text-shadow:0 1px 8px rgba(92,122,82,.5); }
+  .face.th-iino .corner-code{ background: rgba(26,24,14,.5); color:#f2ecd8; }
+  .face.th-iino .est{ color: rgba(242,236,216,.75); }
+  .face.th-iino .est b{ color:#f2ecd8; }
+  .face.th-iino .qr{ background:#faf6e8; }
+  .face.back.th-iino .grain{ opacity:.08; }
+
   /* ---------- Crop modal ---------- */
   .crop-modal{
     position:fixed; inset:0; z-index:50; display:none;
@@ -729,7 +819,7 @@
   }
   .crop-header{
     padding:14px 18px; font-size:11px; letter-spacing:.14em; color:#eee;
-    border-bottom:1px solid rgba(255,255,255,.08); font-family:'Space Mono', monospace;
+    border-bottom:1px solid rgba(255,255,255,.08); font-family:'JoseonGulim', 'Space Mono', monospace;
   }
   .crop-header b{ color: var(--accent, #b13a29); }
   .crop-stage{ width:100%; height:min(56vh, 420px); background:#0a0a0b; }
@@ -763,7 +853,90 @@
     .cp-pop{ width:190px; }
   }
 
+  /* ---------- Mobile optimization pass ----------
+     Bigger tap targets, tighter chrome padding, and a few font-size bumps
+     so form controls hit the ~16px iOS Safari won't auto-zoom on. None of
+     this touches the ticket card itself (it already scales via
+     width:100%/aspect-ratio) — just the surrounding editor UI. */
+  @media (max-width:600px){
+    .stage{ padding:20px 12px 40px; gap:18px; }
+    .toolbar{ padding:10px; gap:8px; }
+    .tool-group{ gap:7px; }
+
+    /* Buttons/chips: taller, roomier hit area for a thumb instead of a
+       cursor. min-height rather than a fixed height so multi-line labels
+       (long theme/font names) still get to wrap instead of clipping. */
+    .btn{ padding:10px 13px; font-size:12px; min-height:38px; }
+    .btn.small{ padding:8px 11px; font-size:14px; min-height:34px; }
+    .chip{ padding:7px 13px; font-size:11px; min-height:32px; }
+    .vis-chip{ padding:7px 11px; font-size:10.5px; min-height:32px; }
+
+    /* Color/paper swatches and the custom-picker dot are the smallest
+       targets in the whole toolbar (20px) — 20px is well under the ~44px
+       comfortable touch minimum, so give them breathing room. */
+    .swatch, .swatch-picker{ width:28px; height:28px; }
+    .swatch-picker::after{ width:14px; height:14px; }
+
+    .stepper{ gap:10px; }
+    .divider{ display:none; } /* a 1px rule stranded alone on a wrapped row just reads as clutter on narrow screens */
+
+    /* SV square/hue slider are already touch-action:none for dragging;
+       just give them more room to drag inside on a small screen. */
+    .cp-sv{ height:140px; }
+    .cp-hue{ height:16px; }
+    .cp-hue-thumb, .cp-dot{ width:17px; height:17px; }
+
+    .sel-bar select{ font-size:16px; }
+    .sel-bar{ gap:6px; padding:8px; max-width: calc(100vw - 16px); }
+
+    .crop-actions{ flex-wrap:wrap; row-gap:8px; }
+  }
+
   @media (prefers-reduced-motion: reduce){ *{ transition-duration:.01ms !important; animation-duration:.01ms !important; } }
+
+  /* ---------- Locked ("고정") theme group ---------- */
+  .tool-group.locked-themes .tool-label{ color:#c9a13a; }
+  .theme-chips.locked .chip{ border-color:rgba(201,161,58,.35); }
+  .theme-chips.locked .chip.active{ border-color:rgba(201,161,58,.7); background:rgba(201,161,58,.16); }
+
+  /* ---------- Front-content visibility toggles ---------- */
+  .front-toggles{ flex-wrap:wrap; }
+  .vis-chip{
+    font-family:'JoseonGulim', 'Space Mono', monospace; font-size:10px; letter-spacing:.04em;
+    color:#cfcabf; background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.14); border-radius:6px;
+    padding:5px 9px; cursor:pointer; white-space:nowrap;
+  }
+  .vis-chip:hover{ background:rgba(255,255,255,.1); }
+  .vis-chip.off{ opacity:.45; text-decoration:line-through; }
+  [data-toggle-group].section-hidden{ visibility:hidden !important; }
+
+  /* Pair-row toggle button reuses .btn small; no extra rule needed. */
+
+  /* ---------- Selection format bar (드래그 선택 시 폰트/색상 편집) ---------- */
+  .sel-bar{
+    position:fixed; z-index:90;
+    display:flex; align-items:center; gap:8px;
+    background:#141311; border:1px solid rgba(255,255,255,.14);
+    border-radius:9px; padding:7px 9px;
+    box-shadow:0 20px 50px -14px rgba(0,0,0,.8), 0 2px 8px rgba(0,0,0,.5);
+    font-family:'JoseonGulim', 'Space Mono', monospace;
+  }
+  .sel-bar[hidden]{ display:none; }
+  .sel-bar select{
+    font-family:'JoseonGulim', 'Space Mono', monospace; font-size:11px;
+    color:#eee; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
+    padding:5px 7px; border-radius:6px; cursor:pointer; max-width:150px;
+  }
+  .sel-bar select option{ background:#161615; color:#eee; }
+  .sel-bar .sel-clear{
+    font-family:'JoseonGulim', 'Space Mono', monospace; font-size:10px; color:#cfcabf;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
+    border-radius:6px; padding:5px 8px; cursor:pointer;
+  }
+  .sel-bar .sel-clear:hover{ background:rgba(255,255,255,.12); }
+
+  .watermark-note{ font-size:9.5px; color:rgba(255,255,255,.4); letter-spacing:.02em; flex-basis:100%; }
 </style>
 </head>
 <body>
@@ -779,11 +952,22 @@
 
   <div class="toolbar">
     <div class="tool-group">
+      <button class="btn small" id="loginBtn" type="button" title="로그인">🔒 로그인</button>
+    </div>
+    <div class="divider"></div>
+    <div class="tool-group">
       <span class="tool-label">테마</span>
       <div class="theme-chips" id="themeChips">
         <button class="chip active" type="button" data-theme="base">BASE</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="tool-group locked-themes">
+      <span class="tool-label">고정 테마</span>
+      <div class="theme-chips locked" id="themeChipsLocked">
         <button class="chip" type="button" data-theme="hz261">261.626Hz</button>
         <button class="chip" type="button" data-theme="earth911">EARTH911</button>
+        <button class="chip" type="button" data-theme="iino">飯野夫婦</button>
       </div>
     </div>
     <div class="divider"></div>
@@ -827,7 +1011,29 @@
     </div>
     <div class="divider"></div>
     <div class="tool-group">
+      <button class="btn small" id="pairToggleBtn" type="button" aria-pressed="true" title="뒷면 Pair 항목을 껐다 켰다 합니다">Pair 표시 ON</button>
+    </div>
+    <div class="divider"></div>
+    <div class="tool-group">
       <button class="btn primary" id="syncToggleBtn" type="button" aria-pressed="true" title="같은 내용의 텍스트를 함께 편집합니다">🔗 동시편집 ON</button>
+    </div>
+    <div class="divider"></div>
+    <div class="tool-group front-toggles">
+      <span class="tool-label">앞면 표시</span>
+      <div class="theme-chips" id="frontToggles">
+        <button class="vis-chip" type="button" data-group="wm-label">워터마크 문구</button>
+        <button class="vis-chip" type="button" data-group="wm-num">워터마크 번호</button>
+        <button class="vis-chip" type="button" data-group="brand">Pair 이름</button>
+        <button class="vis-chip" type="button" data-group="date">DATE</button>
+        <button class="vis-chip" type="button" data-group="title">제목</button>
+        <button class="vis-chip" type="button" data-group="hr">구분선</button>
+        <button class="vis-chip" type="button" data-group="type">Type</button>
+        <button class="vis-chip" type="button" data-group="world">World</button>
+        <button class="vis-chip" type="button" data-group="no">No.</button>
+        <button class="vis-chip" type="button" data-group="caption">캡션</button>
+        <button class="vis-chip" type="button" data-group="serial">Serial</button>
+        <button class="vis-chip" type="button" data-group="code">Code</button>
+      </div>
     </div>
     <div class="divider"></div>
     <div class="tool-group fonts">
@@ -860,11 +1066,12 @@
         </div>
       </div>
     </div>
-    <div class="tool-group">
+    <div class="tool-group" style="flex-wrap:wrap; row-gap:4px;">
       <span class="tool-label">SAVE</span>
       <button class="btn" id="saveFrontBtn">앞면만</button>
       <button class="btn" id="saveBackBtn">뒷면만</button>
       <button class="btn primary" id="saveBothBtn">앞+뒤 세로로</button>
+      <span class="watermark-note" id="watermarkNote">저장 이미지엔 워터마크(@6xyzvvvvv)가 자동 삽입되며 수정·삭제할 수 없어요</span>
     </div>
   </div>
 
@@ -876,26 +1083,26 @@
         <div class="face front" id="faceFront">
           <div class="face-pad">
             <div class="watermark-row">
-              <span contenteditable="true" spellcheck="false" data-ct="wm-label">PAIR TICKET</span>
-              <span contenteditable="true" spellcheck="false" id="topNumFront">NO. 612</span>
+              <span contenteditable="true" spellcheck="false" data-ct="wm-label" data-toggle-group="wm-label">PAIR TICKET</span>
+              <span contenteditable="true" spellcheck="false" id="topNumFront" data-toggle-group="wm-num">NO. 612</span>
             </div>
 
             <div class="fr-top">
-              <div class="fr-brand">Pair:<br><b contenteditable="true" spellcheck="false" data-ct="brand-pair">은하랑 승현이랑</b></div>
-              <div class="stamp-date">
+              <div class="fr-brand" data-toggle-group="brand">Pair:<br><b contenteditable="true" spellcheck="false" data-ct="brand-pair">은하랑 승현이랑</b></div>
+              <div class="stamp-date" data-toggle-group="date">
                 <span class="lbl">DATE</span>
                 <span contenteditable="true" spellcheck="false" id="dateField">06.12.26</span>
               </div>
             </div>
 
-            <div class="fr-title" contenteditable="true" spellcheck="false" data-ct="title">BAMCO</div>
-            <div class="fr-hr"></div>
+            <div class="fr-title" contenteditable="true" spellcheck="false" data-ct="title" data-toggle-group="title">BAMCO</div>
+            <div class="fr-hr" data-toggle-group="hr"></div>
 
             <div class="fr-grid">
-              <div class="field"><label>Type</label><div class="val" contenteditable="true" spellcheck="false" id="dropField">연인</div></div>
-              <div class="field wide"><label>World</label><div class="val" contenteditable="true" spellcheck="false" data-ct="world">블루페어리</div></div>
-              <div class="field field-inline"><label>No.</label><div class="val" contenteditable="true" spellcheck="false" id="numField">612</div></div>
-              <div class="field wide fr-caption-cell">
+              <div class="field" data-toggle-group="type"><label>Type</label><div class="val" contenteditable="true" spellcheck="false" id="dropField">연인</div></div>
+              <div class="field wide" data-toggle-group="world"><label>World</label><div class="val" contenteditable="true" spellcheck="false" data-ct="world">블루페어리</div></div>
+              <div class="field field-inline" data-toggle-group="no"><label>No.</label><div class="val" contenteditable="true" spellcheck="false" id="numField">612</div></div>
+              <div class="field wide fr-caption-cell" data-toggle-group="caption">
                 <div class="fr-caption" contenteditable="true" spellcheck="false" data-ct="caption">" 역시, 장승현은 도은하의 마법사였다."</div>
               </div>
             </div>
@@ -903,8 +1110,8 @@
             <div class="fr-spacer"></div>
 
             <div class="fr-bottom">
-              <div class="fr-serial">S. <span contenteditable="true" spellcheck="false" id="serialField">1022-1221</span></div>
-              <div class="fr-code"><span class="fr-barcode" aria-hidden="true"></span><span contenteditable="true" spellcheck="false" data-ct="code-main">bamco</span></div>
+              <div class="fr-serial" data-toggle-group="serial">S. <span contenteditable="true" spellcheck="false" id="serialField">1022-1221</span></div>
+              <div class="fr-code" data-toggle-group="code"><span class="fr-barcode" aria-hidden="true"></span><span contenteditable="true" spellcheck="false" data-ct="code-main">bamco</span></div>
             </div>
           </div>
 
@@ -991,7 +1198,7 @@ Thank you for being my home</div>
                   <div class="back-row actor-row"><label>Actor A</label><div class="sig" contenteditable="true" spellcheck="false">도은하</div></div>
                   <div class="back-row actor-row"><label>Actor B</label><div class="sig" contenteditable="true" spellcheck="false">장승현</div></div>
                 </div>
-                <div class="back-row"><label>Pair</label><div class="sig" contenteditable="true" spellcheck="false" data-ct="pair-sig">은하랑 승현이랑</div></div>
+                <div class="back-row" id="pairRow"><label>Pair</label><div class="sig" contenteditable="true" spellcheck="false" data-ct="pair-sig">은하랑 승현이랑</div></div>
               </div>
               <div class="back-meta">
                 <div class="est">Est. <b contenteditable="true" spellcheck="false" data-ct="est-year">2026</b></div>
@@ -1031,6 +1238,25 @@ Thank you for being my home</div>
     <input class="cp-hex" id="cpHex" maxlength="7" spellcheck="false" aria-label="HEX 코드">
   </div>
   <div class="cp-recent" id="cpRecent"></div>
+</div>
+
+<div class="cp-pop login-pop" id="loginPop" hidden role="dialog" aria-label="로그인">
+  <div class="cp-head">
+    <span class="cp-title">로그인</span>
+    <button class="cp-close" id="loginClose" type="button" aria-label="닫기">×</button>
+  </div>
+  <input class="login-field" id="loginIdInput" type="text" placeholder="아이디" autocomplete="username" spellcheck="false">
+  <input class="login-field" id="loginPwInput" type="password" placeholder="비밀번호" autocomplete="current-password">
+  <div class="login-error" id="loginError" hidden>아이디 또는 비밀번호가 올바르지 않습니다</div>
+  <button class="btn primary small" id="loginSubmitBtn" type="button" style="width:100%;">로그인</button>
+</div>
+
+<div class="sel-bar" id="selBar" hidden role="toolbar" aria-label="선택한 글자 서식">
+  <select id="selFontSelect" aria-label="선택 영역 폰트">
+    <option value="">폰트 유지</option>
+  </select>
+  <button class="swatch-picker" type="button" id="selColorBtn" aria-label="선택 영역 글자색" title="글자 색상"></button>
+  <button class="sel-clear" type="button" id="selClearBtn" title="이 부분만 서식 지우기">서식 지우기</button>
 </div>
 
 <div class="crop-modal" id="cropModal">
@@ -1249,12 +1475,18 @@ Thank you for being my home</div>
   function closeColorPicker(){
     if(cpPop.hidden) return;
     cpPushRecent(cpCurrentHex());
+    // Was this session picking a color for selected ticket text? The
+    // selectionchange listener kept savedRange alive while this popup was
+    // open (see above) — now that it's actually closing, the format bar
+    // has done its job and can come down too.
+    const wasTextColor = (cpTrigger === selColorBtn);
     cpPop.hidden = true;
     cpTrigger = null;
     cpOnChange = null;
     document.removeEventListener('pointerdown', cpOutside, true);
     window.removeEventListener('resize', cpPosition);
     window.removeEventListener('scroll', cpPosition, true);
+    if(wasTextColor) hideSelBar();
   }
 
   cpClose.addEventListener('click', closeColorPicker);
@@ -1369,6 +1601,52 @@ Thank you for being my home</div>
     { id:'yidstreet', label:'Y이드스트리트', weight:700, family:"'Yidstreet', sans-serif",
       source:{ type:'fontface', family:'Yidstreet', weight:700,
         urls:[['https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2110@1.0/YdestreetB.woff2','woff2']] } },
+    // ---- 飯野夫婦 (iino) theme additions ----
+    { id:'hakgyoansimwooju', label:'학교안심 우주', weight:400, family:"'SchoolSafeUniverse', sans-serif",
+      source:{ type:'fontface', family:'SchoolSafeUniverse', weight:'normal',
+        urls:[['https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-2@1.0/HakgyoansimWoojuR.woff2','woff2']] } },
+    { id:'hakgyoansimbunpil', label:'학교안심 분필', weight:400, family:"'SchoolSafetyChalk', cursive",
+      source:{ type:'fontface', family:'SchoolSafetyChalk', weight:'normal',
+        urls:[['https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-2@1.0/HakgyoansimBunpilR.woff2','woff2']] } },
+    // Handwriting-style CJK face (derived from Klee One) — carries the
+    // Japanese dialogue line on the front and the Actor/Pair names on the
+    // back, so it needs real Kana+Kanji+Hangul coverage that a Korean-only
+    // face can't offer. Shipped as a multi-weight stylesheet like
+    // Pretendard/Paperlogy/Mona12 above, so it goes through the same
+    // EXPORT_WEIGHT_HINTS trimming at export time.
+    { id:'lxgwwenkai', label:'LXGW 문해', weight:400, family:"'LXGW WenKai', serif",
+      source:{ type:'stylesheet', url:'https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/style.css' } },
+    { id:'galmuri11', label:'갈무리11', weight:700, family:"'Galmuri11', monospace",
+      source:{ type:'fontface', family:'Galmuri11', weight:700,
+        urls:[['https://cdn.jsdelivr.net/gh/projectnoonnu/2506-1@1.0/Galmuri11-Bold.woff2','woff2']] } },
+    // ---- Japanese Google Fonts additions ----
+    // All hosted on Google Fonts (fonts.googleapis.com), so — unlike the
+    // BOOTH/personal-site fonts these were picked to stand in for — they're
+    // genuinely hotlinkable: same 'google' source type as Anton/Caveat/etc.
+    // above, loaded from the same combined <link> in <head>, and picked up
+    // by the same export/embedding path with no special-casing needed.
+    { id:'dotgothic16', label:'DotGothic16 (도트)', weight:400, family:"'DotGothic16', sans-serif",
+      source:{ type:'google', url:'https://fonts.googleapis.com/css2?family=DotGothic16&display=swap' } },
+    { id:'yomogi', label:'Yomogi (손글씨)', weight:400, family:"'Yomogi', cursive",
+      source:{ type:'google', url:'https://fonts.googleapis.com/css2?family=Yomogi&display=swap' } },
+    { id:'kleeone', label:'Klee One (손글씨)', weight:600, family:"'Klee One', cursive",
+      source:{ type:'google', url:'https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap' } },
+    { id:'kiwimaru', label:'Kiwi Maru (손글씨)', weight:500, family:"'Kiwi Maru', serif",
+      source:{ type:'google', url:'https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@300;400;500&display=swap' } },
+    { id:'cherrybombone', label:'Cherry Bomb One (팝)', weight:400, family:"'Cherry Bomb One', cursive",
+      source:{ type:'google', url:'https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap' } },
+    { id:'hachimarupop', label:'Hachi Maru Pop (팝)', weight:400, family:"'Hachi Maru Pop', cursive",
+      source:{ type:'google', url:'https://fonts.googleapis.com/css2?family=Hachi+Maru+Pop&display=swap' } },
+    { id:'reggaeone', label:'Reggae One (팝)', weight:400, family:"'Reggae One', cursive",
+      source:{ type:'google', url:'https://fonts.googleapis.com/css2?family=Reggae+One&display=swap' } },
+    { id:'delagothicone', label:'Dela Gothic One (팝)', weight:400, family:"'Dela Gothic One', sans-serif",
+      source:{ type:'google', url:'https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap' } },
+    { id:'rocknrollone', label:'RocknRoll One (디자인체)', weight:400, family:"'RocknRoll One', sans-serif",
+      source:{ type:'google', url:'https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap' } },
+    { id:'shipporimincho', label:'Shippori Mincho (명조)', weight:600, family:"'Shippori Mincho', serif",
+      source:{ type:'google', url:'https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&display=swap' } },
+    { id:'yujisyuku', label:'Yuji Syuku (붓글씨풍 명조)', weight:400, family:"'Yuji Syuku', serif",
+      source:{ type:'google', url:'https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap' } },
   ];
 
   // Each role maps to one CSS var and one <select>. The label next to each
@@ -1389,14 +1667,27 @@ Thank you for being my home</div>
   // comment in :root for why. All three fallback faces are always loaded
   // in <head> already, so this needs no extra network request.
   const KOREAN_FALLBACK = { title:'Paperlogy', label:'Pretendard', data:'Pretendard', body:'Pretendard', hand:'MunmakchoHaeban' };
+  // A second, Japanese-capable fallback goes in right after that. None of
+  // the Korean fallbacks above (or most chosen fonts) carry Kana/Kanji
+  // glyphs, so without this, any Japanese text in the ticket (dialogue
+  // lines, names, etc.) fell through to the browser's arbitrary system
+  // font per role, or a blank/notdef box on some platforms. LXGW WenKai
+  // already ships full Kana+Kanji+Hangul+Latin coverage (it's the same
+  // face used deliberately for the iino theme) so it doubles as a safe
+  // universal CJK net for every other theme too, not just that one.
+  const JAPANESE_FALLBACK = 'LXGW WenKai';
   function withKoreanFallback(role, family){
     const fallback = KOREAN_FALLBACK[role];
-    if(!fallback) return family;
     const i = family.indexOf(',');
     const primary = i === -1 ? family : family.slice(0, i);
     const rest = i === -1 ? '' : family.slice(i); // ", sans-serif" etc.
-    if(primary.replace(/['"]/g,'').trim() === fallback) return family; // already the fallback itself
-    return `${primary}, '${fallback}'${rest}`;
+    const primaryName = primary.replace(/['"]/g,'').trim();
+    const chain = [primary];
+    if(fallback && primaryName !== fallback) chain.push(`'${fallback}'`);
+    if(primaryName !== JAPANESE_FALLBACK && fallback !== JAPANESE_FALLBACK){
+      chain.push(`'${JAPANESE_FALLBACK}'`);
+    }
+    return chain.join(', ') + rest;
   }
 
   function setFontRole(role, id, syncSelect){
@@ -1499,12 +1790,34 @@ Thank you for being my home</div>
       // 261.626Hz — locks editing everywhere while active, restoring BASE's
       // own content when you switch back to it.
       lock:true
+    },
+    // A summer-countryside dedication theme: pale sky over sun-warmed rice
+    // fields. Fonts set by hand: 학교안심분필 (chalky school-notebook feel)
+    // for the title, Space Mono carries label/data/body, and Yomogi signs
+    // the Japanese dialogue and Actor/Pair names — it has real Kana/Kanji
+    // coverage (loaded via the same universal Japanese-fallback chain as
+    // every other role, so it wasn't strictly required here, but was
+    // picked deliberately for its handwriting feel).
+    iino: {
+      accent:'#5c7a52',
+      paper:'#f2ecd8',
+      ink:'#2c2a20',
+      muted:'#8a8168',
+      line:'rgba(44,42,32,0.18)',
+      lineStrong:'rgba(44,42,32,0.42)',
+      fonts:{ title:'hakgyoansimbunpil', label:'spacemono', data:'spacemono', body:'spacemono', hand:'yomogi' },
+      faceClass:'th-iino',
+      // Third dedication theme, made for one specific pair (飯野夫婦) —
+      // locks editing everywhere while active, same as 261.626Hz/EARTH911.
+      // Fonts set by hand: 학교안심분필 title, Space Mono label/data/body,
+      // Yomogi signature.
+      lock:true
     }
   };
   const THEME_FACE_CLASSES = Object.keys(THEMES)
     .map(k=>THEMES[k].faceClass).filter(Boolean);
 
-  const themeChips = document.querySelectorAll('#themeChips .chip');
+  const themeChips = document.querySelectorAll('#themeChips .chip, #themeChipsLocked .chip');
   const themeFaces = [document.getElementById('faceFront'), document.getElementById('faceBack')];
 
   // Set true only while a locked theme (261.626Hz or EARTH911) is active.
@@ -1512,6 +1825,13 @@ Thank you for being my home</div>
   // which only ever runs at click-time, well after this whole script has
   // finished loading.
   let contentLocked = false;
+  // Which theme is currently active, so a login/logout can re-evaluate its
+  // lock state without needing the click that switched to it.
+  let currentThemeId = 'base';
+  // Set true once otek84 logs in (see the Login section further down).
+  // A logged-in session can edit "고정 테마" content and save without the
+  // export watermark — see setContentLocked() and the save handlers below.
+  let isLoggedIn = false;
   // Each locked theme's dedication content, plus whatever's being typed
   // under the one unlocked theme (BASE), live in three separate snapshots
   // so switching themes can never leak one into another. hz261Snapshot is
@@ -1523,21 +1843,39 @@ Thank you for being my home</div>
   // DOM, since the DOM at load time holds BASE/hz261's content, not EARTH911's.
   let hz261Snapshot = null;
   let earth911Snapshot = null;
+  let iinoSnapshot = null;
   let otherSnapshot = null;
+  // Locked themes now number three, so the old hz261/earth911 binary
+  // ternary at the applyTheme call site doesn't scale — this is the lookup
+  // it was replaced with. Falls back to earth911Snapshot only in the
+  // impossible case of an unrecognized locked id.
+  function lockedSnapshotFor(id){
+    if(id === 'hz261') return hz261Snapshot;
+    if(id === 'earth911') return earth911Snapshot;
+    if(id === 'iino') return iinoSnapshot;
+    return earth911Snapshot;
+  }
   function setContentLocked(locked){
-    contentLocked = locked;
+    // A logged-in session (otek84) can edit "고정 테마" dedication content
+    // instead of it staying frozen — the theme's own `lock:true` still
+    // decides whether it *would* lock for anyone else, but a login bypasses
+    // the actual UI-disabling below.
+    const effectiveLocked = locked && !isLoggedIn;
+    contentLocked = effectiveLocked;
     themeFaces.forEach(f=>{
       f.querySelectorAll('[contenteditable]').forEach(el=>{
-        el.contentEditable = locked ? 'false' : 'true';
+        el.contentEditable = effectiveLocked ? 'false' : 'true';
       });
     });
     [accentPickerWrap, paperPickerWrap, ...accentSwatches, ...paperSwatches].forEach(el=>{
-      el.disabled = locked;
+      el.disabled = effectiveLocked;
     });
     Object.keys(FONT_ROLES).forEach(role=>{
-      document.getElementById(FONT_ROLES[role].selectId).disabled = locked;
+      document.getElementById(FONT_ROLES[role].selectId).disabled = effectiveLocked;
     });
-    stampBtn.disabled = locked;
+    stampBtn.disabled = effectiveLocked;
+    if(typeof pairToggleBtn !== 'undefined') pairToggleBtn.disabled = effectiveLocked;
+    if(typeof frontToggleBtns !== 'undefined') frontToggleBtns.forEach(b=> b.disabled = effectiveLocked);
     refreshActorUI();
   }
 
@@ -1550,6 +1888,7 @@ Thank you for being my home</div>
   function applyTheme(id){
     const t = THEMES[id];
     if(!t) return;
+    currentThemeId = id;
     const enteringLocked = !!t.lock;
 
     // Swap the whole editable content set only when crossing the
@@ -1558,7 +1897,24 @@ Thank you for being my home</div>
     // just load the target theme's own fixed snapshot directly.
     if(enteringLocked){
       if(!contentLocked) otherSnapshot = captureContent();
-      applyContent(id === 'hz261' ? hz261Snapshot : earth911Snapshot);
+      applyContent(lockedSnapshotFor(id));
+      // Preset "dedication" themes (iino, EARTH911, 261.626Hz) are meant to
+      // always show complete — but front-section toggles (DATE/Type/No./
+      // Serial/etc.) are a single global on/off state shared with BASE, so
+      // whatever was switched off during free editing on BASE (or while a
+      // different locked theme was active) would otherwise carry straight
+      // into this one, silently hiding fields with no way to turn them back
+      // on since the toggle chips are disabled the moment the theme locks.
+      // Entering a locked theme always clears that leftover hidden state.
+      if(typeof hiddenFrontGroups !== 'undefined' && hiddenFrontGroups.size){
+        hiddenFrontGroups.clear();
+        if(typeof frontToggleBtns !== 'undefined'){
+          frontToggleBtns.forEach(b=> b.classList.remove('off'));
+        }
+        document.querySelectorAll('#faceFront [data-toggle-group]').forEach(el=>{
+          el.classList.remove('section-hidden');
+        });
+      }
     } else if(!enteringLocked && contentLocked){
       applyContent(otherSnapshot);
     }
@@ -1594,6 +1950,118 @@ Thank you for being my home</div>
   // Prime the picker swatches with the starting colors.
   accentPickerWrap.style.setProperty('--pick', '#b13a29');
   paperPickerWrap.style.setProperty('--pick', '#efe9db');
+
+  /* ---------------- Login ----------------
+     Client-side only — the id/password below live in this file's own
+     source, so anyone who opens dev tools can read them. This isn't
+     real access control, just a quick gate so a casual visitor doesn't
+     stumble into editing a "고정 테마" someone else made or into a
+     watermark-free export. Logged-in state persists across reloads via
+     localStorage (no password stored, just a flag). */
+  const LOGIN_ID = 'otek84';
+  const LOGIN_PW = '122184';
+  const LOGIN_STORAGE_KEY = 'ttMakerLoggedIn';
+
+  const loginBtn = document.getElementById('loginBtn');
+  const loginPop = document.getElementById('loginPop');
+  const loginIdInput = document.getElementById('loginIdInput');
+  const loginPwInput = document.getElementById('loginPwInput');
+  const loginError = document.getElementById('loginError');
+  const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+  const loginClose = document.getElementById('loginClose');
+  const watermarkNote = document.getElementById('watermarkNote');
+
+  function updateLoginUI(){
+    loginBtn.textContent = isLoggedIn ? `🔓 ${LOGIN_ID}` : '🔒 로그인';
+    loginBtn.title = isLoggedIn ? '클릭하면 로그아웃합니다' : '로그인';
+    loginBtn.classList.toggle('logged-in', isLoggedIn);
+    if(watermarkNote){
+      watermarkNote.textContent = isLoggedIn
+        ? '로그인 상태: 워터마크 없이 저장됩니다'
+        : '저장 이미지엔 워터마크(@6xyzvvvvv)가 자동 삽입되며 수정·삭제할 수 없어요';
+    }
+  }
+
+  function loginPosition(){
+    const r = loginBtn.getBoundingClientRect();
+    const w = loginPop.offsetWidth, h = loginPop.offsetHeight;
+    let left = r.left + r.width/2 - w/2;
+    left = Math.min(Math.max(left, 8), window.innerWidth - w - 8);
+    let top = r.bottom + 10;
+    if(top + h > window.innerHeight - 8) top = Math.max(8, r.top - h - 10);
+    loginPop.style.left = left + 'px';
+    loginPop.style.top = top + 'px';
+  }
+
+  function loginOutside(e){
+    if(loginPop.contains(e.target)) return;
+    if(loginBtn.contains(e.target)) return;
+    closeLoginPop();
+  }
+
+  function openLoginPop(){
+    loginError.hidden = true;
+    loginIdInput.value = '';
+    loginPwInput.value = '';
+    loginPop.hidden = false;
+    loginPosition();
+    loginIdInput.focus();
+    setTimeout(()=>{
+      document.addEventListener('pointerdown', loginOutside, true);
+      window.addEventListener('resize', loginPosition);
+      window.addEventListener('scroll', loginPosition, true);
+    }, 0);
+  }
+
+  function closeLoginPop(){
+    if(loginPop.hidden) return;
+    loginPop.hidden = true;
+    document.removeEventListener('pointerdown', loginOutside, true);
+    window.removeEventListener('resize', loginPosition);
+    window.removeEventListener('scroll', loginPosition, true);
+  }
+
+  function setLoggedIn(value){
+    isLoggedIn = value;
+    try{
+      if(value) localStorage.setItem(LOGIN_STORAGE_KEY, '1');
+      else localStorage.removeItem(LOGIN_STORAGE_KEY);
+    }catch(e){ /* private-browsing / storage disabled — session-only login still works */ }
+    updateLoginUI();
+    // Re-run the current theme's lock decision now that isLoggedIn has
+    // changed — this both unlocks a "고정 테마" already on screen when
+    // logging in, and correctly re-locks it after logging back out.
+    const t = THEMES[currentThemeId];
+    setContentLocked(!!(t && t.lock));
+  }
+
+  function attemptLogin(){
+    if(loginIdInput.value.trim() === LOGIN_ID && loginPwInput.value === LOGIN_PW){
+      setLoggedIn(true);
+      closeLoginPop();
+    } else {
+      loginError.hidden = false;
+      loginPwInput.value = '';
+      loginPwInput.focus();
+    }
+  }
+
+  loginBtn.addEventListener('click', ()=>{
+    if(isLoggedIn){ setLoggedIn(false); return; }
+    if(!loginPop.hidden){ closeLoginPop(); return; }
+    openLoginPop();
+  });
+  loginSubmitBtn.addEventListener('click', attemptLogin);
+  [loginIdInput, loginPwInput].forEach(inp=>{
+    inp.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); attemptLogin(); } });
+  });
+  loginClose.addEventListener('click', closeLoginPop);
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeLoginPop(); });
+
+  // Restore a previous login (flag only, never the password) before the
+  // very first theme lock decision runs.
+  try{ if(localStorage.getItem(LOGIN_STORAGE_KEY) === '1') isLoggedIn = true; }catch(e){}
+  updateLoginUI();
 
   /* ---------------- Flip ---------------- */
   const ticket = document.getElementById('ticket');
@@ -1654,6 +2122,16 @@ Thank you for being my home</div>
 
   const linkedEditableEls = Array.from(document.querySelectorAll('[contenteditable]'));
   const lastEditableValues = new WeakMap();
+  // Fields that just received a plain-text paste. A pasted field is excluded
+  // from the matching-sync mechanism in both directions — it won't be
+  // overwritten by some other field's edit, and it won't push its own edits
+  // out to anyone else — purely because copy/paste can leave two unrelated
+  // fields holding identical text by coincidence, and without this a plain
+  // "copy A, paste into B" would silently make A and B track each other from
+  // then on. The very next time the field is actually typed into (not
+  // pasted into), it rejoins the normal sync pool.
+  const pasteExcluded = new WeakSet();
+  let pasteFlagTarget = null;
 
   // Pulled out of the original init loop so newly-created fields (extra
   // Actor rows added after load) can join the same sync group instead of
@@ -1663,11 +2141,15 @@ Thank you for being my home</div>
     linkedEditableEls.push(el);
     el.addEventListener('input', () => {
       const newVal = el.textContent;
-      if(syncEnabled){
+      const isPaste = (pasteFlagTarget === el);
+      if(isPaste){ pasteExcluded.add(el); }
+      else { pasteExcluded.delete(el); }
+      if(syncEnabled && !isPaste){
         const oldVal = lastEditableValues.get(el);
         if(oldVal !== undefined && oldVal.trim() !== '' && oldVal !== newVal){
           linkedEditableEls.forEach(other => {
             if(other === el) return;
+            if(pasteExcluded.has(other)) return;
             if(lastEditableValues.get(other) === oldVal){
               other.textContent = newVal;
               lastEditableValues.set(other, newVal);
@@ -1690,7 +2172,7 @@ Thank you for being my home</div>
   const actorAddBtn = document.getElementById('actorAddBtn');
   const actorRemoveBtn = document.getElementById('actorRemoveBtn');
   const actorCountLabel = document.getElementById('actorCountLabel');
-  const MIN_ACTORS = 1, MAX_ACTORS = 6;
+  const MIN_ACTORS = 0, MAX_ACTORS = 6;
 
   function actorLabel(i){
     return 'Actor ' + String.fromCharCode(65 + i); // 0->A, 1->B, ...
@@ -1731,6 +2213,175 @@ Thank you for being my home</div>
   actorAddBtn.addEventListener('click', addActorRow);
   actorRemoveBtn.addEventListener('click', removeActorRow);
   refreshActorUI();
+
+  /* ---------------- Back "Pair" row toggle ---------------- */
+  const pairRow = document.getElementById('pairRow');
+  const pairToggleBtn = document.getElementById('pairToggleBtn');
+  let pairVisible = true;
+  function updatePairToggleUI(){
+    pairToggleBtn.textContent = pairVisible ? 'Pair 표시 ON' : 'Pair 표시 OFF';
+    pairToggleBtn.classList.toggle('primary', pairVisible);
+    pairToggleBtn.setAttribute('aria-pressed', String(pairVisible));
+    pairToggleBtn.disabled = contentLocked;
+  }
+  pairToggleBtn.addEventListener('click', ()=>{
+    if(contentLocked) return;
+    pairVisible = !pairVisible;
+    pairRow.style.visibility = pairVisible ? '' : 'hidden';
+    updatePairToggleUI();
+  });
+  updatePairToggleUI();
+
+  /* ---------------- Front content section toggles ----------------
+     Each block on the front (watermark line, brand/date, title, the
+     Type/World/No/caption grid, serial/code) can be switched off
+     independently. Toggling hides every element sharing that
+     data-toggle-group value with a plain class, so PNG export (which
+     clones the live face DOM) respects it automatically. */
+  const frontToggleBtns = Array.from(document.querySelectorAll('#frontToggles .vis-chip'));
+  const hiddenFrontGroups = new Set();
+  function applyFrontGroupVisibility(group){
+    const hidden = hiddenFrontGroups.has(group);
+    document.querySelectorAll('#faceFront [data-toggle-group="'+group+'"]').forEach(el=>{
+      el.classList.toggle('section-hidden', hidden);
+    });
+  }
+  frontToggleBtns.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(contentLocked) return;
+      const group = btn.dataset.group;
+      if(hiddenFrontGroups.has(group)) hiddenFrontGroups.delete(group);
+      else hiddenFrontGroups.add(group);
+      btn.classList.toggle('off', hiddenFrontGroups.has(group));
+      applyFrontGroupVisibility(group);
+    });
+  });
+
+  /* ---------------- Strip formatting on paste ----------------
+     Pasting into any editable field (front/back fields, the crossword
+     word list) used to carry over the source's own font/size/color —
+     this forces every paste down to plain text so it always inherits
+     whatever font/color is already set on the field. */
+  document.addEventListener('paste', function(e){
+    const target = e.target;
+    const editable = target && target.closest && target.closest('[contenteditable="true"]');
+    if(!editable) return;
+    e.preventDefault();
+    const clip = e.clipboardData || window.clipboardData;
+    const text = clip ? clip.getData('text/plain') : '';
+    pasteFlagTarget = editable;
+    if(document.queryCommandSupported && document.queryCommandSupported('insertText')){
+      document.execCommand('insertText', false, text);
+    } else {
+      const sel = window.getSelection();
+      if(sel && sel.rangeCount){
+        const range = sel.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(document.createTextNode(text));
+        range.collapse(false);
+        editable.dispatchEvent(new Event('input', { bubbles:true }));
+      }
+    }
+    pasteFlagTarget = null;
+  });
+
+  /* ---------------- Selection format bar (드래그 선택 → 폰트/색상) ----------------
+     Selecting text inside any editable ticket field pops up a small
+     floating bar (font select + color swatch) above the selection, so a
+     highlighted phrase can get its own font/color without changing the
+     whole field. Applies via execCommand, which wraps just the selected
+     run in its own <span> — everything else in the field is untouched. */
+  const selBar = document.getElementById('selBar');
+  const selFontSelect = document.getElementById('selFontSelect');
+  const selColorBtn = document.getElementById('selColorBtn');
+  const selClearBtn = document.getElementById('selClearBtn');
+  FONT_DEFS.forEach(f=>{
+    const opt = document.createElement('option');
+    opt.value = f.id;
+    opt.textContent = f.label;
+    selFontSelect.appendChild(opt);
+  });
+  try{ document.execCommand('styleWithCSS', false, true); }catch(e){}
+
+  let savedRange = null;
+  function saveCurrentRange(){
+    const sel = window.getSelection();
+    if(sel && sel.rangeCount && !sel.isCollapsed){
+      savedRange = sel.getRangeAt(0).cloneRange();
+      return true;
+    }
+    return false;
+  }
+  function restoreSavedRange(){
+    if(!savedRange) return false;
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(savedRange);
+    return true;
+  }
+  function positionSelBar(range){
+    const r = range.getBoundingClientRect();
+    selBar.hidden = false;
+    const w = selBar.offsetWidth, h = selBar.offsetHeight;
+    let left = r.left + r.width/2 - w/2;
+    left = Math.min(Math.max(left, 8), window.innerWidth - w - 8);
+    let top = r.top - h - 10;
+    if(top < 8) top = r.bottom + 10;
+    selBar.style.left = left + 'px';
+    selBar.style.top = top + 'px';
+  }
+  function hideSelBar(){
+    selBar.hidden = true;
+    savedRange = null;
+  }
+  document.addEventListener('selectionchange', ()=>{
+    const sel = window.getSelection();
+    if(!sel || sel.isCollapsed || !sel.rangeCount){ 
+      // Applying a color via execCommand('foreColor') collapses the live
+      // selection as a side effect — that used to look like a genuine
+      // empty selection here and wiped savedRange, so picking a color once
+      // silently broke any further drag/adjustment in the color picker
+      // (the SV square, the hue slider) for that same selected text.
+      // While the picker is open specifically for text color, ignore the
+      // collapse instead of tearing down the saved selection.
+      if(cpTrigger === selColorBtn && !cpPop.hidden) return;
+      // Don't hide while the user is interacting with the bar itself
+      // (choosing from the <select>, etc.) — only hide on a genuine
+      // empty/collapsed selection elsewhere.
+      if(!selBar.contains(document.activeElement)) hideSelBar();
+      return;
+    }
+    const range = sel.getRangeAt(0);
+    const anchorEl = sel.anchorNode && (sel.anchorNode.nodeType===1 ? sel.anchorNode : sel.anchorNode.parentElement);
+    const withinEditable = anchorEl && anchorEl.closest('#faceFront [contenteditable="true"], #faceBack [contenteditable="true"]');
+    if(!withinEditable || contentLocked){ hideSelBar(); return; }
+    saveCurrentRange();
+    positionSelBar(range);
+  });
+  // Clicking into the bar's own controls would otherwise collapse the
+  // ticket's text selection before the click handler runs.
+  selBar.addEventListener('mousedown', (e)=>{
+    if(e.target !== selFontSelect) e.preventDefault();
+  });
+  selFontSelect.addEventListener('change', ()=>{
+    if(!restoreSavedRange()) return;
+    const f = FONT_DEFS.find(x=>x.id===selFontSelect.value);
+    if(f) document.execCommand('fontName', false, f.family.replace(/['"]/g,''));
+    selFontSelect.value = '';
+  });
+  selColorBtn.addEventListener('click', ()=>{
+    if(!savedRange) return;
+    openColorPicker(selColorBtn, '글자 색상', '#1c1914', (hex)=>{
+      restoreSavedRange();
+      document.execCommand('foreColor', false, hex);
+      selColorBtn.style.setProperty('--pick', hex);
+    });
+  });
+  selClearBtn.addEventListener('click', ()=>{
+    if(!restoreSavedRange()) return;
+    document.execCommand('removeFormat', false, null);
+    hideSelBar();
+  });
 
   // Front watermark number and back corner-code number: same ticket number,
   // shown with different prefixes ("NO. " vs "No. "), so a plain exact-text
@@ -2168,6 +2819,31 @@ Thank you for being my home</div>
     '<div class="back-row actor-row"><label>Actor A</label><div class="sig" contenteditable="true" spellcheck="false">기재언</div></div>' +
     '<div class="back-row actor-row"><label>Actor B</label><div class="sig" contenteditable="true" spellcheck="false">최지구</div></div>';
 
+  // 飯野夫婦 (iino)'s own fixed dedication, built the same way as
+  // EARTH911's: a clone of BASE's snapshot with its fields overridden.
+  iinoSnapshot = JSON.parse(JSON.stringify(otherSnapshot));
+  Object.assign(iinoSnapshot.ids, {
+    topNumFront: 'NO. 901',
+    dateField: '09.01.26',
+    dropField: '夫婦',
+    numField: '901',
+    serialField: '2026-0901',
+    topNumBack: 'No. 901'
+  });
+  Object.assign(iinoSnapshot.keys, {
+    'wm-label': 'PAIR TICKET',
+    'brand-pair': '飯野夫婦',
+    'title': '#열아홉번의겨울을지나',
+    'world': '日本',
+    'caption': '「向日葵は太陽を見る。俺は嫁を見ている。それだけのことだ。」',
+    'code-main': 'IINO',
+    'pair-sig': '飯野夫婦',
+    'est-year': '2026'
+  });
+  iinoSnapshot.actorRowsHTML =
+    '<div class="back-row actor-row"><label>Actor A</label><div class="sig" contenteditable="true" spellcheck="false">飯野 大治郎</div></div>' +
+    '<div class="back-row actor-row"><label>Actor B</label><div class="sig" contenteditable="true" spellcheck="false">飯野 伊彩</div></div>';
+
   /* =================================================================
      WYSIWYG EXPORT — renders the *actual* DOM (with real CSS clip-path/
      mask/webfonts) to a PNG via SVG <foreignObject>, so what you see
@@ -2212,7 +2888,10 @@ Thank you for being my home</div>
   const EXPORT_WEIGHT_HINTS = {
     anton:[400], spacemono:[400,700], caveat:[500,700], spacegrotesk:[500,700],
     instrumentserif:[400], mrsaint:[400],
-    pretendard:[400,700], paperlogy:[400,700], mona12:[400,700]
+    pretendard:[400,700], paperlogy:[400,700], mona12:[400,700], lxgwwenkai:[400],
+    dotgothic16:[400], yomogi:[400], kleeone:[400,600], kiwimaru:[300,400,500],
+    cherrybombone:[400], hachimarupop:[400], reggaeone:[400], delagothicone:[400],
+    rocknrollone:[400], shipporimincho:[400,500,600,700,800], yujisyuku:[400]
   };
   function filterFontFaceCSS(cssText, id, defStyle){
     const blocks = cssText.match(/@font-face\s*\{[\s\S]*?\}/g);
@@ -2507,6 +3186,45 @@ Thank you for being my home</div>
     return canvas;
   }
 
+  // Baked into the exported pixels (never a DOM element on the ticket
+  // itself), so it can't be edited, moved, or deleted from within the
+  // editor — only ever appears on the saved PNG.
+  const EXPORT_WATERMARK = '@6xyzvvvvv';
+  function drawExportWatermark(ctx, w, h, scale, align){
+    ctx.save();
+    // w/h/fontPx/pad below are all already expressed in device pixels
+    // (the caller passes canvas.width/height straight through). For the
+    // individual front/back saves, this same 2d context was handed back
+    // from rasterizeSvgToCanvas with its scale(scale,scale) transform
+    // still active from drawing the ticket itself — never reset — so
+    // every coordinate here would get multiplied by `scale` a second
+    // time and land far below the actual canvas, making the watermark
+    // invisible in those two exports (the combined save uses a fresh,
+    // never-scaled canvas/context, which is why only that one showed it).
+    // Resetting to the identity transform first keeps this function's
+    // device-pixel math correct regardless of what the context already
+    // had applied to it.
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // Sized/weighted to sit quietly under the ticket's own bottom row
+    // (serial/barcode) rather than compete with it — smaller, thinner
+    // stroke and lower opacity than the first pass, which was legible
+    // enough on the "save both" composite's plain dark margin but read as
+    // too heavy once it was actually visible directly on the card paper.
+    const fontPx = Math.round(8 * scale);
+    ctx.font = `${fontPx}px 'Space Mono', monospace`;
+    ctx.textBaseline = 'alphabetic';
+    const pad = Math.round(10 * scale);
+    const metrics = ctx.measureText(EXPORT_WATERMARK);
+    const x = align === 'right' ? (w - metrics.width - pad) : (w - metrics.width) / 2;
+    const y = h - pad;
+    ctx.lineWidth = Math.max(1, fontPx * 0.1);
+    ctx.strokeStyle = 'rgba(0,0,0,.25)';
+    ctx.strokeText(EXPORT_WATERMARK, x, y);
+    ctx.fillStyle = 'rgba(255,255,255,.5)';
+    ctx.fillText(EXPORT_WATERMARK, x, y);
+    ctx.restore();
+  }
+
   function downloadCanvas(canvas, filename){
     const link = document.createElement('a');
     link.download = filename;
@@ -2566,6 +3284,7 @@ Thank you for being my home</div>
   document.getElementById('saveFrontBtn').addEventListener('click', (e)=>{
     withBusy(e.currentTarget, '...', async ()=>{
       const c = await exportFace(faceFront);
+      if(!isLoggedIn) drawExportWatermark(c.getContext('2d'), c.width, c.height, SCALE, 'center');
       downloadCanvas(c, 'ticket-front.png');
     });
   });
@@ -2573,6 +3292,7 @@ Thank you for being my home</div>
   document.getElementById('saveBackBtn').addEventListener('click', (e)=>{
     withBusy(e.currentTarget, '...', async ()=>{
       const c = await exportFace(faceBack);
+      if(!isLoggedIn) drawExportWatermark(c.getContext('2d'), c.width, c.height, SCALE, 'center');
       downloadCanvas(c, 'ticket-back.png');
     });
   });
@@ -2614,6 +3334,8 @@ Thank you for being my home</div>
       ctx.fillText(`BACK · ${dateLabel}`, pad, y + labelH*0.65);
       y += labelH;
       ctx.drawImage(backCanvas, pad + (contentW-backCanvas.width)/2, y);
+
+      if(!isLoggedIn) drawExportWatermark(ctx, totalW, totalH, SCALE, 'right');
 
       downloadCanvas(combined, 'ticket-front-back.png');
     });
