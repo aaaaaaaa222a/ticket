@@ -620,6 +620,11 @@
   .face.th-hz261 .back-row label{ letter-spacing:.2em; }
   .face.th-hz261 .grain{ opacity:.1; }
   .face.back.th-hz261 .grain{ opacity:.07; }
+  /* pz-header/pz-footer now default to the generic --line-strong var (so a
+     plain theme like CROSSWORD below gets its own neutral rule color) —
+     restore 261.626Hz's original exact blue-ink tint here. */
+  .face.th-hz261 .pz-header{ border-bottom-color: rgba(67,83,111,.26); }
+  .face.th-hz261 .pz-footer{ border-top-color: rgba(67,83,111,.26); }
 
   /* ----- Crossword puzzle front (hz261 theme only) -----
      The grid itself is never contenteditable — it's fully derived from the
@@ -629,13 +634,15 @@
     display:none; position:relative; z-index:2; width:100%; height:100%;
     padding: 20px 26px 16px; flex-direction:column; box-sizing:border-box;
   }
-  .face.front.th-hz261 .face-pad{ display:none; }
-  .face.front.th-hz261 .puzzle-pad{ display:flex; }
+  .face.front.th-hz261 .face-pad,
+  .face.front.th-puzzle .face-pad{ display:none; }
+  .face.front.th-hz261 .puzzle-pad,
+  .face.front.th-puzzle .puzzle-pad{ display:flex; }
 
   .pz-header{
     display:flex; align-items:baseline; justify-content:space-between;
     padding-bottom:8px; margin-bottom:10px;
-    border-bottom:1px solid rgba(67,83,111,.26);
+    border-bottom:1px solid var(--line-strong);
   }
   .pz-kicker{
     font-family: var(--ticket-font-label); font-size:11px; font-weight:700;
@@ -698,7 +705,7 @@
      day count) so that corner isn't left visually bare. */
   .pz-footer{
     margin-top:auto; padding-top:12px;
-    border-top:1px solid rgba(67,83,111,.26);
+    border-top:1px solid var(--line-strong);
     display:flex; flex-direction:row; align-items:flex-end;
     justify-content:space-between; gap:12px;
   }
@@ -826,6 +833,84 @@
   .face.th-iino .est b{ color:#f2ecd8; }
   .face.th-iino .qr{ background:#faf6e8; }
   .face.back.th-iino .grain{ opacity:.08; }
+
+  /* ---------- THEME : CROSSWORD ----------
+     Not a locked dedication theme like the three above — a plain, editable
+     skin (lives in the "기본" chip row, next to BASE) that swaps the front
+     face-pad for the crossword puzzle-pad. Deliberately undecorated: flat
+     paper + ink only, no illustrated starfield/orbit motif and no fixed
+     BAMCO/261.626Hz stamp graphic, so the grid and word list are the only
+     thing carrying the design. Back face is the same photo-back layout
+     every theme uses, just recolored to the paper/ink pair below. */
+  .face.th-puzzle{ background-image:none; }
+  .face.back.th-puzzle{ background-image:none; }
+  .face.th-puzzle .fr-hr{ height:1px; background:none; border-bottom:1px solid var(--line-strong); }
+  .face.th-puzzle .watermark-row{ letter-spacing:.2em; }
+  .face.th-puzzle .grain{ opacity:.08; }
+  .face.back.th-puzzle .grain{ opacity:.06; }
+  .face.th-puzzle .vert-strip{ background: rgba(20,20,18,.78); }
+  .face.th-puzzle .vert-strip span{ letter-spacing:.18em; }
+  .face.th-puzzle .back-bar{
+    background: linear-gradient(to top, rgba(16,16,14,.88) 0%, rgba(16,16,14,.5) 55%, transparent 100%);
+  }
+
+  /* The shared puzzle-pad's own decoration (starfield grid background,
+     die-cut BAMCO stamp) is 261.626Hz-specific content — strip it back to
+     a plain grid + word list for this theme. */
+  .face.front.th-puzzle .pz-grid{ background-image:none; }
+  .face.front.th-puzzle .pz-stamp{ display:none; }
+
+  /* ---------- Usage / help modal ----------
+     Shown once on page load (see localStorage check near the bottom of the
+     script) so a first-time visitor gets oriented before touching anything;
+     reachable again anytime via the ❓ button next to STAMP/FLIP. Same
+     panel chrome as crop/export modals for visual consistency. */
+  .help-modal{
+    position:fixed; inset:0; z-index:70; display:none;
+    align-items:center; justify-content:center;
+    background:rgba(4,4,5,.82); backdrop-filter: blur(4px);
+    padding:20px; cursor:auto;
+  }
+  .help-modal.open{ display:flex; }
+  .help-panel{
+    width:100%; max-width:480px; max-height:86vh; background:#141311;
+    border:1px solid rgba(255,255,255,.1); border-radius:12px;
+    overflow:hidden; display:flex; flex-direction:column;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,.75);
+  }
+  .help-header{
+    padding:16px 18px 12px; border-bottom:1px solid rgba(255,255,255,.08);
+    font-family:'Anton', sans-serif; font-size:16px; letter-spacing:.02em; color:#f4f1e9;
+  }
+  .help-header span{
+    display:block; margin-top:3px; font-family:'JoseonGulim','Space Mono',monospace;
+    font-size:10.5px; letter-spacing:.14em; color:rgba(255,255,255,.4); font-weight:normal;
+  }
+  .help-body{
+    padding:14px 18px; overflow:auto; flex:1;
+    font-family:'JoseonGulim','Space Mono',monospace; font-size:12.5px; line-height:1.7;
+    color:#d8d3c8; display:flex; flex-direction:column; gap:14px;
+  }
+  .help-body dt{
+    font-size:10.5px; letter-spacing:.16em; color: var(--accent, #b13a29);
+    font-weight:700; margin-bottom:4px; text-transform:uppercase;
+  }
+  .help-body dd{ margin:0; color:#d8d3c8; }
+  .help-actions{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 16px; border-top:1px solid rgba(255,255,255,.08);
+  }
+  .help-dismiss{
+    display:flex; align-items:center; gap:6px;
+    font-family:'JoseonGulim','Space Mono',monospace; font-size:10.5px; color:rgba(255,255,255,.45);
+    cursor:pointer; user-select:none;
+  }
+  .help-dismiss input{ accent-color: var(--accent, #b13a29); width:14px; height:14px; }
+  @media (max-width:600px){
+    .help-header{ padding:14px 14px 10px; }
+    .help-body{ padding:12px 14px; }
+    .help-actions{ padding:10px 12px; }
+  }
 
   /* ---------- Crop modal ---------- */
   .crop-modal{
@@ -1028,6 +1113,7 @@
         <button class="btn small" id="loginBtn" type="button" title="로그인">🔒 로그인</button>
         <button class="btn" id="stampBtn">🖨 STAMP · 랜덤 발급</button>
         <button class="btn" id="flipBtn">⟲ FLIP</button>
+        <button class="btn small" id="helpBtn" type="button" title="사용법 보기">❓ 사용법</button>
       </div>
     </div>
 
@@ -1037,6 +1123,7 @@
         <span class="tool-label">기본</span>
         <div class="theme-chips" id="themeChips">
           <button class="chip active" type="button" data-theme="base">BASE</button>
+          <button class="chip" type="button" data-theme="puzzle">CROSSWORD</button>
         </div>
       </div>
       <div class="toolbar-row locked-themes">
@@ -1339,6 +1426,30 @@ Thank you for being my home</div>
   </select>
   <button class="swatch-picker" type="button" id="selColorBtn" aria-label="선택 영역 글자색" title="글자 색상"></button>
   <button class="sel-clear" type="button" id="selClearBtn" title="이 부분만 서식 지우기">서식 지우기</button>
+</div>
+
+<div class="help-modal" id="helpModal" role="dialog" aria-label="사용법">
+  <div class="help-panel">
+    <div class="help-header">
+      TOKEN TICKET 사용법
+      <span>처음이라면 한 번 읽어보세요</span>
+    </div>
+    <div class="help-body">
+      <dl style="margin:0; display:contents;">
+        <div><dt>STAMP</dt><dd>번호·시리얼·바코드를 새로 랜덤 발급해요. 티켓에 도장을 찍듯 눌러보세요.</dd></div>
+        <div><dt>FLIP</dt><dd>앞면(티켓 정보)과 뒷면(사진 + 서명)을 뒤집어 봅니다.</dd></div>
+        <div><dt>테마</dt><dd>기본 줄(BASE / CROSSWORD)은 자유롭게 편집 가능. 고정 테마(261.626Hz / EARTH911 / 飯野夫婦)는 특정 커플을 위해 고정된 내용이라 편집이 잠겨요. CROSSWORD 테마는 앞면이 십자말풀이로 바뀌고, WORDS 목록만 고치면 퍼즐 칸이 자동으로 다시 그려집니다.</dd></div>
+        <div><dt>색상</dt><dd>도장색·배경색은 스와치를 누르거나, 맨 끝의 동그란 버튼으로 직접 색을 고를 수 있어요.</dd></div>
+        <div><dt>편집</dt><dd>글자를 탭하면 바로 수정돼요. Actor 수는 +/− 로 늘리고 줄이고, 사진은 클릭해서 업로드한 뒤 드래그·확대로 잘라낼 수 있습니다. 글자를 드래그 선택하면 그 부분만 폰트·색을 바꾸는 바가 떠요.</dd></div>
+        <div><dt>표시 항목</dt><dd>워터마크·날짜·제목 같은 항목들은 칩을 눌러 켜고 끌 수 있어요 (취소선 = 숨김).</dd></div>
+        <div><dt>저장</dt><dd>앞면/뒷면/둘 다를 PNG로 저장해요. 모바일에서는 미리보기 이미지를 길게 눌러 사진 앱에 바로 저장할 수도 있습니다.</dd></div>
+      </dl>
+    </div>
+    <div class="help-actions">
+      <label class="help-dismiss"><input type="checkbox" id="helpDismissCheck"> 다시 보지 않기</label>
+      <button class="btn primary" id="helpCloseBtn" type="button">확인</button>
+    </div>
+  </div>
 </div>
 
 <div class="crop-modal" id="cropModal">
@@ -1908,6 +2019,21 @@ Thank you for being my home</div>
       // Fonts set by hand: 학교안심분필 title, Space Mono label/data/body,
       // Yomogi signature.
       lock:true
+    },
+    // A plain, always-editable theme (sits next to BASE, not in the locked
+    // row) that reuses 261.626Hz's crossword front but drops that theme's
+    // illustrated space motif and fixed BAMCO stamp for flat paper + ink —
+    // Space Grotesk title, Space Mono everywhere else, matching BASE's own
+    // monospace-first feel instead of introducing a new voice.
+    puzzle: {
+      accent:'#3d4148',
+      paper:'#f5f3ec',
+      ink:'#201f1c',
+      muted:'#8d897c',
+      line:'rgba(32,31,28,0.16)',
+      lineStrong:'rgba(32,31,28,0.4)',
+      fonts:{ title:'spacegrotesk', label:'spacemono', data:'spacemono', body:'spacemono', hand:'caveat' },
+      faceClass:'th-puzzle'
     }
   };
   const THEME_FACE_CLASSES = Object.keys(THEMES)
@@ -3362,7 +3488,38 @@ Thank you for being my home</div>
      phone's native long-press context menu ("사진에 저장" / "이미지 저장")
      work at all. The download link and, where supported, the native share
      sheet (which itself offers "이미지 저장") cover the rest. */
-  const exportModal = document.getElementById('exportModal');
+  /* ---------------- Usage / help modal ----------------
+     Shown once automatically on page load — see the call at the bottom of
+     this block — and reopenable anytime via the ❓ button. "다시 보지
+     않기" is remembered in localStorage so it doesn't nag on repeat visits
+     from the same browser; the button itself is unaffected by that and
+     always works regardless of what's saved. */
+  const HELP_DISMISS_KEY = 'tokenTicketHelpDismissed';
+  const helpModal = document.getElementById('helpModal');
+  const helpBtn = document.getElementById('helpBtn');
+  const helpCloseBtn = document.getElementById('helpCloseBtn');
+  const helpDismissCheck = document.getElementById('helpDismissCheck');
+
+  function openHelpModal(){ helpModal.classList.add('open'); }
+  function closeHelpModal(){
+    helpModal.classList.remove('open');
+    try{
+      if(helpDismissCheck.checked) localStorage.setItem(HELP_DISMISS_KEY, '1');
+    }catch(e){ /* localStorage unavailable (private mode, etc.) — just skip remembering */ }
+  }
+  helpBtn.addEventListener('click', openHelpModal);
+  helpCloseBtn.addEventListener('click', closeHelpModal);
+  helpModal.addEventListener('click', (e)=>{ if(e.target === helpModal) closeHelpModal(); });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && helpModal.classList.contains('open')) closeHelpModal();
+  });
+
+  let alreadyDismissedHelp = false;
+  try{ alreadyDismissedHelp = localStorage.getItem(HELP_DISMISS_KEY) === '1'; }
+  catch(e){ /* localStorage unavailable — just show it every time instead */ }
+  if(!alreadyDismissedHelp) openHelpModal();
+
+
   const exportPreviewImg = document.getElementById('exportPreviewImg');
   const exportCloseBtn = document.getElementById('exportCloseBtn');
   const exportShareBtn = document.getElementById('exportShareBtn');
