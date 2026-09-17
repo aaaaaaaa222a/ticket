@@ -136,16 +136,31 @@
     font-size:clamp(28px, 5vw, 44px); letter-spacing:.02em; margin:0; color:#f4f1e9;
   }
 
-  /* ---------- Toolbar ---------- */
+  /* ---------- Toolbar ----------
+     Reorganized as stacked, labeled sections (account/theme/color/edit/
+     visibility/font/save) instead of one long wrapping row of unrelated
+     controls separated only by thin dividers — each section now reads as
+     its own labeled block, top to bottom, on every screen size. */
   .toolbar{
     width:100%; max-width:860px;
-    display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center;
-    padding:10px 14px;
+    display:flex; flex-direction:column; gap:16px;
+    padding:16px 18px;
     background:rgba(255,255,255,.03);
     border:1px solid rgba(255,255,255,.08);
     border-radius:10px;
     backdrop-filter: blur(6px);
   }
+  .toolbar-section{
+    display:flex; flex-direction:column; gap:9px;
+    padding-bottom:16px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .toolbar-section:last-child{ padding-bottom:0; border-bottom:none; }
+  .section-title{
+    font-size:10px; letter-spacing:.16em; color:var(--muted);
+    text-transform:uppercase; font-weight:700;
+  }
+  .toolbar-row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
   .tool-group{ display:flex; align-items:center; gap:8px; }
   .tool-label{ font-size:9px; color:var(--muted); letter-spacing:.12em; }
   .divider{ width:1px; height:22px; background:rgba(255,255,255,.12); }
@@ -173,7 +188,7 @@
     min-width:14px; text-align:center;
   }
 
-  .swatches{ display:flex; gap:6px; align-items:center; }
+  .swatches{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
   .swatch{
     width:20px; height:20px; border-radius:50%; border:2px solid rgba(255,255,255,.25);
     cursor:pointer; padding:0;
@@ -286,13 +301,6 @@
      flex-wrap row with unrelated buttons) laid out as an aligned 3-column
      grid — role name / select / where-it-applies — so every select and every
      description lines up and is easy to scan at a glance. */
-  .tool-group.fonts{
-    flex-basis:100%; width:100%;
-    flex-direction:column; align-items:stretch;
-    padding-top:10px; margin-top:2px;
-    border-top:1px solid rgba(255,255,255,.08);
-  }
-  .tool-group.fonts .tool-label{ margin-bottom:8px; }
   .font-grid{
     display:grid;
     grid-template-columns:54px 152px 1fr;
@@ -326,7 +334,7 @@
   }
 
   /* ---------- Theme chips ---------- */
-  .theme-chips{ display:flex; gap:6px; }
+  .theme-chips{ display:flex; flex-wrap:wrap; gap:6px; }
   .chip{
     font-family:'JoseonGulim', 'Space Mono', monospace; font-size:10px; letter-spacing:.08em;
     color:#cfcabf; background:rgba(255,255,255,.05);
@@ -338,7 +346,23 @@
   .chip.active{ background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.45); color:#fff; }
 
   /* ---------- 3D stage ---------- */
-  .scene{ perspective: 1800px; width:100%; max-width: 780px; display:flex; justify-content:center; }
+  .scene{ perspective: 1800px; width:100%; max-width: 780px; margin:0 auto; position:relative; }
+  /* Fixed-size design canvas: the ticket is always laid out at its true
+     760x400 size (matching TICKET_BASE_W/H in the script below), no matter
+     how narrow the viewport is. updateTicketScale() in the script then
+     shrinks this whole box visually with a CSS transform to fit the
+     available width. Because the ticket's internal padding/font-sizes are
+     fixed px values tuned for a 760px-wide card, letting the box itself
+     shrink via width:100% (the old behavior) made every one of those fixed
+     values too large for the narrower box and clipped content on phones;
+     scaling the box instead of resizing it keeps every proportion intact
+     at any screen size. It's also what makes exported PNGs the same pixel
+     size on mobile and desktop — see renderFaceToCanvas. */
+  .ticket-scale{
+    position:absolute; top:0; left:0;
+    width:760px;
+    transform-origin: top left;
+  }
   .tilt{
     width:100%; transform-style: preserve-3d;
     transition: transform .35s cubic-bezier(.2,.8,.2,1);
@@ -832,6 +856,50 @@
   .crop-actions .btn.small{ padding:6px 10px; font-size:14px; line-height:1; }
   @media (max-width:480px){ .crop-stage{ height:320px; } }
 
+  /* ---------- Export preview modal ----------
+     Shown after every save. The PNG is rendered as a real <img>, which is
+     what lets a phone's native "길게 눌러 저장" (long-press → save image)
+     context menu work at all — a programmatic download alone never
+     triggers that on iOS/Android. The download/share buttons underneath
+     cover the "그냥 파일로 저장" case for anyone who'd rather not long-press. */
+  .export-modal{
+    position:fixed; inset:0; z-index:60; display:none;
+    align-items:center; justify-content:center;
+    background:rgba(4,4,5,.82); backdrop-filter: blur(4px);
+    padding:20px; cursor:auto;
+  }
+  .export-modal.open{ display:flex; }
+  .export-panel{
+    width:100%; max-width:480px; max-height:90vh; background:#141311;
+    border:1px solid rgba(255,255,255,.1); border-radius:12px;
+    overflow:hidden; display:flex; flex-direction:column;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,.75);
+  }
+  .export-header{
+    padding:14px 18px; font-size:11px; letter-spacing:.05em; line-height:1.6;
+    color:#cfcabf; border-bottom:1px solid rgba(255,255,255,.08);
+    font-family:'JoseonGulim', 'Space Mono', monospace;
+  }
+  .export-preview-wrap{
+    padding:16px; overflow:auto; flex:1;
+    display:flex; align-items:center; justify-content:center;
+    background:#0a0a0b;
+  }
+  .export-preview-wrap img{
+    max-width:100%; height:auto; display:block;
+    -webkit-touch-callout: default; /* explicit: keep the long-press save menu enabled */
+  }
+  .export-actions{
+    display:flex; flex-wrap:wrap; gap:8px;
+    padding:12px 16px; border-top:1px solid rgba(255,255,255,.08);
+  }
+  .export-actions .btn{ flex:1 1 auto; min-width:96px; text-align:center; text-decoration:none; }
+  @media (max-width:600px){
+    .export-header{ padding:12px 14px; }
+    .export-preview-wrap{ padding:12px; }
+    .export-actions{ padding:10px 12px; }
+  }
+
   @keyframes stampPunch{
     0%{ transform: scale(1.9) rotate(-14deg); opacity:0; }
     55%{ transform: scale(.92) rotate(-4deg); opacity:1; }
@@ -855,12 +923,15 @@
 
   /* ---------- Mobile optimization pass ----------
      Bigger tap targets, tighter chrome padding, and a few font-size bumps
-     so form controls hit the ~16px iOS Safari won't auto-zoom on. None of
-     this touches the ticket card itself (it already scales via
-     width:100%/aspect-ratio) — just the surrounding editor UI. */
+     so form controls hit the ~16px iOS Safari won't auto-zoom on. The
+     ticket card itself is handled separately: it's always laid out at a
+     fixed 760x400 size and scaled down visually (see .ticket-scale and
+     updateTicketScale()), so nothing here needs to touch it — this section
+     is just the surrounding editor UI. */
   @media (max-width:600px){
     .stage{ padding:20px 12px 40px; gap:18px; }
-    .toolbar{ padding:10px; gap:8px; }
+    .toolbar{ padding:12px; gap:14px; }
+    .toolbar-section{ padding-bottom:14px; gap:8px; }
     .tool-group{ gap:7px; }
 
     /* Buttons/chips: taller, roomier hit area for a thumb instead of a
@@ -895,7 +966,7 @@
   @media (prefers-reduced-motion: reduce){ *{ transition-duration:.01ms !important; animation-duration:.01ms !important; } }
 
   /* ---------- Locked ("고정") theme group ---------- */
-  .tool-group.locked-themes .tool-label{ color:#c9a13a; }
+  .locked-themes .tool-label{ color:#c9a13a; }
   .theme-chips.locked .chip{ border-color:rgba(201,161,58,.35); }
   .theme-chips.locked .chip.active{ border-color:rgba(201,161,58,.7); background:rgba(201,161,58,.16); }
 
@@ -936,7 +1007,7 @@
   }
   .sel-bar .sel-clear:hover{ background:rgba(255,255,255,.12); }
 
-  .watermark-note{ font-size:9.5px; color:rgba(255,255,255,.4); letter-spacing:.02em; flex-basis:100%; }
+  .watermark-note{ font-size:9.5px; color:rgba(255,255,255,.4); letter-spacing:.02em; }
 </style>
 </head>
 <body>
@@ -951,93 +1022,98 @@
   </div>
 
   <div class="toolbar">
-    <div class="tool-group">
-      <button class="btn small" id="loginBtn" type="button" title="로그인">🔒 로그인</button>
-    </div>
-    <div class="divider"></div>
-    <div class="tool-group">
-      <span class="tool-label">테마</span>
-      <div class="theme-chips" id="themeChips">
-        <button class="chip active" type="button" data-theme="base">BASE</button>
+
+    <div class="toolbar-section">
+      <div class="toolbar-row">
+        <button class="btn small" id="loginBtn" type="button" title="로그인">🔒 로그인</button>
+        <button class="btn" id="stampBtn">🖨 STAMP · 랜덤 발급</button>
+        <button class="btn" id="flipBtn">⟲ FLIP</button>
       </div>
     </div>
-    <div class="divider"></div>
-    <div class="tool-group locked-themes">
-      <span class="tool-label">고정 테마</span>
-      <div class="theme-chips locked" id="themeChipsLocked">
-        <button class="chip" type="button" data-theme="hz261">261.626Hz</button>
-        <button class="chip" type="button" data-theme="earth911">EARTH911</button>
-        <button class="chip" type="button" data-theme="iino">飯野夫婦</button>
+
+    <div class="toolbar-section">
+      <span class="section-title">테마</span>
+      <div class="toolbar-row">
+        <span class="tool-label">기본</span>
+        <div class="theme-chips" id="themeChips">
+          <button class="chip active" type="button" data-theme="base">BASE</button>
+        </div>
+      </div>
+      <div class="toolbar-row locked-themes">
+        <span class="tool-label">고정 테마</span>
+        <div class="theme-chips locked" id="themeChipsLocked">
+          <button class="chip" type="button" data-theme="hz261">261.626Hz</button>
+          <button class="chip" type="button" data-theme="earth911">EARTH911</button>
+          <button class="chip" type="button" data-theme="iino">飯野夫婦</button>
+        </div>
       </div>
     </div>
-    <div class="divider"></div>
-    <div class="tool-group">
-      <span class="tool-label">도장색</span>
-      <div class="swatches" id="swatches">
-        <button class="swatch active" style="background:#b13a29" data-accent="#b13a29" aria-label="레드"></button>
-        <button class="swatch" style="background:#2b2b2b" data-accent="#2b2b2b" aria-label="블랙"></button>
-        <button class="swatch" style="background:#2f5d43" data-accent="#2f5d43" aria-label="그린"></button>
-        <button class="swatch" style="background:#33456f" data-accent="#33456f" aria-label="인디고"></button>
-        <button class="swatch-picker" type="button" id="accentPickerWrap" aria-label="커스텀 도장 색상" title="직접 고르기"></button>
+
+    <div class="toolbar-section">
+      <span class="section-title">색상</span>
+      <div class="toolbar-row">
+        <span class="tool-label">도장색</span>
+        <div class="swatches" id="swatches">
+          <button class="swatch active" style="background:#b13a29" data-accent="#b13a29" aria-label="레드"></button>
+          <button class="swatch" style="background:#2b2b2b" data-accent="#2b2b2b" aria-label="블랙"></button>
+          <button class="swatch" style="background:#2f5d43" data-accent="#2f5d43" aria-label="그린"></button>
+          <button class="swatch" style="background:#33456f" data-accent="#33456f" aria-label="인디고"></button>
+          <button class="swatch-picker" type="button" id="accentPickerWrap" aria-label="커스텀 도장 색상" title="직접 고르기"></button>
+        </div>
+      </div>
+      <div class="toolbar-row">
+        <span class="tool-label">배경색</span>
+        <div class="swatches" id="paperSwatches">
+          <button class="swatch active" style="background:#efe9db" data-paper="#efe9db" aria-label="아이보리"></button>
+          <button class="swatch" style="background:#f7f5ef" data-paper="#f7f5ef" aria-label="스노우"></button>
+          <button class="swatch" style="background:#e7ddc9" data-paper="#e7ddc9" aria-label="크래프트"></button>
+          <button class="swatch" style="background:#ecdad4" data-paper="#ecdad4" aria-label="블러쉬"></button>
+          <button class="swatch" style="background:#d9e4dc" data-paper="#d9e4dc" aria-label="민트"></button>
+          <button class="swatch" style="background:#dbe3ec" data-paper="#dbe3ec" aria-label="스카이"></button>
+          <button class="swatch" style="background:#1f1e1c" data-paper="#1f1e1c" aria-label="차콜"></button>
+          <button class="swatch-picker" type="button" id="paperPickerWrap" aria-label="커스텀 배경 색상" title="직접 고르기"></button>
+        </div>
       </div>
     </div>
-    <div class="divider"></div>
-    <div class="tool-group">
-      <span class="tool-label">배경색</span>
-      <div class="swatches" id="paperSwatches">
-        <button class="swatch active" style="background:#efe9db" data-paper="#efe9db" aria-label="아이보리"></button>
-        <button class="swatch" style="background:#f7f5ef" data-paper="#f7f5ef" aria-label="스노우"></button>
-        <button class="swatch" style="background:#e7ddc9" data-paper="#e7ddc9" aria-label="크래프트"></button>
-        <button class="swatch" style="background:#ecdad4" data-paper="#ecdad4" aria-label="블러쉬"></button>
-        <button class="swatch" style="background:#d9e4dc" data-paper="#d9e4dc" aria-label="민트"></button>
-        <button class="swatch" style="background:#dbe3ec" data-paper="#dbe3ec" aria-label="스카이"></button>
-        <button class="swatch" style="background:#1f1e1c" data-paper="#1f1e1c" aria-label="차콜"></button>
-        <button class="swatch-picker" type="button" id="paperPickerWrap" aria-label="커스텀 배경 색상" title="직접 고르기"></button>
+
+    <div class="toolbar-section">
+      <span class="section-title">편집</span>
+      <div class="toolbar-row">
+        <div class="tool-group">
+          <span class="tool-label">Actor 수</span>
+          <div class="stepper">
+            <button class="btn small" id="actorRemoveBtn" type="button" aria-label="Actor 줄이기">−</button>
+            <span class="stepper-count" id="actorCountLabel">2</span>
+            <button class="btn small" id="actorAddBtn" type="button" aria-label="Actor 늘리기">+</button>
+          </div>
+        </div>
+        <button class="btn small" id="pairToggleBtn" type="button" aria-pressed="true" title="뒷면 Pair 항목을 껐다 켰다 합니다">Pair 표시 ON</button>
+        <button class="btn primary" id="syncToggleBtn" type="button" aria-pressed="true" title="같은 내용의 텍스트를 함께 편집합니다">🔗 동시편집 ON</button>
       </div>
     </div>
-    <div class="divider"></div>
-    <div class="tool-group">
-      <button class="btn" id="stampBtn">🖨 STAMP · 랜덤 발급</button>
-      <button class="btn" id="flipBtn">⟲ FLIP</button>
-    </div>
-    <div class="divider"></div>
-    <div class="tool-group">
-      <span class="tool-label">Actor 수</span>
-      <div class="stepper">
-        <button class="btn small" id="actorRemoveBtn" type="button" aria-label="Actor 줄이기">−</button>
-        <span class="stepper-count" id="actorCountLabel">2</span>
-        <button class="btn small" id="actorAddBtn" type="button" aria-label="Actor 늘리기">+</button>
+
+    <div class="toolbar-section">
+      <span class="section-title">앞면 표시</span>
+      <div class="toolbar-row front-toggles">
+        <div class="theme-chips" id="frontToggles">
+          <button class="vis-chip" type="button" data-group="wm-label">워터마크 문구</button>
+          <button class="vis-chip" type="button" data-group="wm-num">워터마크 번호</button>
+          <button class="vis-chip" type="button" data-group="brand">Pair 이름</button>
+          <button class="vis-chip" type="button" data-group="date">DATE</button>
+          <button class="vis-chip" type="button" data-group="title">제목</button>
+          <button class="vis-chip" type="button" data-group="hr">구분선</button>
+          <button class="vis-chip" type="button" data-group="type">Type</button>
+          <button class="vis-chip" type="button" data-group="world">World</button>
+          <button class="vis-chip" type="button" data-group="no">No.</button>
+          <button class="vis-chip" type="button" data-group="caption">캡션</button>
+          <button class="vis-chip" type="button" data-group="serial">Serial</button>
+          <button class="vis-chip" type="button" data-group="code">Code</button>
+        </div>
       </div>
     </div>
-    <div class="divider"></div>
-    <div class="tool-group">
-      <button class="btn small" id="pairToggleBtn" type="button" aria-pressed="true" title="뒷면 Pair 항목을 껐다 켰다 합니다">Pair 표시 ON</button>
-    </div>
-    <div class="divider"></div>
-    <div class="tool-group">
-      <button class="btn primary" id="syncToggleBtn" type="button" aria-pressed="true" title="같은 내용의 텍스트를 함께 편집합니다">🔗 동시편집 ON</button>
-    </div>
-    <div class="divider"></div>
-    <div class="tool-group front-toggles">
-      <span class="tool-label">앞면 표시</span>
-      <div class="theme-chips" id="frontToggles">
-        <button class="vis-chip" type="button" data-group="wm-label">워터마크 문구</button>
-        <button class="vis-chip" type="button" data-group="wm-num">워터마크 번호</button>
-        <button class="vis-chip" type="button" data-group="brand">Pair 이름</button>
-        <button class="vis-chip" type="button" data-group="date">DATE</button>
-        <button class="vis-chip" type="button" data-group="title">제목</button>
-        <button class="vis-chip" type="button" data-group="hr">구분선</button>
-        <button class="vis-chip" type="button" data-group="type">Type</button>
-        <button class="vis-chip" type="button" data-group="world">World</button>
-        <button class="vis-chip" type="button" data-group="no">No.</button>
-        <button class="vis-chip" type="button" data-group="caption">캡션</button>
-        <button class="vis-chip" type="button" data-group="serial">Serial</button>
-        <button class="vis-chip" type="button" data-group="code">Code</button>
-      </div>
-    </div>
-    <div class="divider"></div>
-    <div class="tool-group fonts">
-      <span class="tool-label">폰트</span>
+
+    <div class="toolbar-section">
+      <span class="section-title">폰트</span>
       <div class="font-grid">
         <div class="font-field">
           <span class="ff-name">제목</span>
@@ -1066,16 +1142,21 @@
         </div>
       </div>
     </div>
-    <div class="tool-group" style="flex-wrap:wrap; row-gap:4px;">
-      <span class="tool-label">SAVE</span>
-      <button class="btn" id="saveFrontBtn">앞면만</button>
-      <button class="btn" id="saveBackBtn">뒷면만</button>
-      <button class="btn primary" id="saveBothBtn">앞+뒤 세로로</button>
+
+    <div class="toolbar-section">
+      <span class="section-title">SAVE</span>
+      <div class="toolbar-row">
+        <button class="btn" id="saveFrontBtn">앞면만</button>
+        <button class="btn" id="saveBackBtn">뒷면만</button>
+        <button class="btn primary" id="saveBothBtn">앞+뒤 세로로</button>
+      </div>
       <span class="watermark-note" id="watermarkNote">저장 이미지엔 워터마크(@6xyzvvvvv)가 자동 삽입되며 수정·삭제할 수 없어요</span>
     </div>
+
   </div>
 
   <div class="scene">
+   <div class="ticket-scale" id="ticketScale">
     <div class="tilt" id="tilt">
       <div class="ticket" id="ticket">
 
@@ -1213,6 +1294,7 @@ Thank you for being my home</div>
 
       </div>
     </div>
+   </div>
   </div>
 
   <p class="hint">티켓 주변 빈 공간을 클릭하면 뒤집힙니다 · 텍스트를 클릭해 바로 수정하세요 · 뒷면을 클릭해 이미지를 넣어보세요</p>
@@ -1273,6 +1355,20 @@ Thank you for being my home</div>
         <button class="btn" id="cropCancelBtn" type="button">취소</button>
         <button class="btn primary" id="cropApplyBtn" type="button">적용</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="export-modal" id="exportModal" role="dialog" aria-label="이미지 저장">
+  <div class="export-panel">
+    <div class="export-header">이미지를 <b style="color:var(--accent,#b13a29);">길게 눌러서</b> 사진 앱에 바로 저장하거나, 아래 버튼으로 파일 저장·공유할 수 있어요</div>
+    <div class="export-preview-wrap">
+      <img id="exportPreviewImg" src="" alt="저장할 티켓 이미지">
+    </div>
+    <div class="export-actions">
+      <button class="btn" id="exportCloseBtn" type="button">닫기</button>
+      <button class="btn" id="exportShareBtn" type="button" hidden>공유하기</button>
+      <a class="btn primary" id="exportDownloadLink" href="#" download>파일로 저장</a>
     </div>
   </div>
 </div>
@@ -2078,6 +2174,36 @@ Thank you for being my home</div>
     toggleFlip();
   });
   flipBtn.addEventListener('click', toggleFlip);
+
+  /* ---------------- Fixed-size ticket scaling ----------------
+     The ticket's internal CSS (padding, font-sizes, the stamp circle, etc.)
+     is all authored in fixed px against a 760x400 card. Letting the card
+     itself shrink to the viewport width (the old width:100% approach) meant
+     those fixed values no longer fit once the card got narrower than its
+     design size, which is what was clipping ticket content on phones. Now
+     #ticketScale is always laid out at the true 760x400 size, and this
+     function scales that whole box down visually with a CSS transform to
+     fit whatever width is actually available — the ticket's own internal
+     proportions never change, only how big it appears. It also means
+     renderFaceToCanvas (used for saving) can always read a fixed base size
+     instead of whatever size happens to be on screen, so saved images come
+     out the same pixel dimensions on mobile and desktop alike. */
+  const TICKET_BASE_W = 760, TICKET_BASE_H = 400;
+  const ticketScaleEl = document.getElementById('ticketScale');
+  function updateTicketScale(){
+    const sceneEl = document.querySelector('.scene');
+    const available = sceneEl.clientWidth || sceneEl.getBoundingClientRect().width;
+    if(!available) return;
+    const factor = Math.min(1, available / TICKET_BASE_W);
+    const visualW = TICKET_BASE_W * factor;
+    const offsetX = Math.max(0, (available - visualW) / 2);
+    ticketScaleEl.style.left = offsetX + 'px';
+    ticketScaleEl.style.transform = `scale(${factor})`;
+    sceneEl.style.height = Math.round(TICKET_BASE_H * factor) + 'px';
+  }
+  window.addEventListener('resize', updateTicketScale);
+  window.addEventListener('orientationchange', updateTicketScale);
+  updateTicketScale();
 
   /* ---------------- Tilt on pointer move ---------------- */
   const tilt = document.getElementById('tilt');
@@ -3090,8 +3216,12 @@ Thank you for being my home</div>
 
   async function renderFaceToCanvas(faceEl, scale, fontCSS){
     await document.fonts.ready;
-    const rect = faceEl.getBoundingClientRect();
-    const w = Math.round(rect.width), h = Math.round(rect.height);
+    // Fixed design size, not faceEl.getBoundingClientRect(): the on-screen
+    // rect shrinks with #ticketScale's mobile scale factor (see
+    // updateTicketScale above), which would otherwise make every export
+    // smaller on a narrow phone than on a desktop. Using the constant base
+    // size here keeps saved PNGs identical across every device/screen.
+    const w = TICKET_BASE_W, h = TICKET_BASE_H;
 
     const clone = faceEl.cloneNode(true);
     clone.style.position = 'static';
@@ -3225,11 +3355,57 @@ Thank you for being my home</div>
     ctx.restore();
   }
 
-  function downloadCanvas(canvas, filename){
-    const link = document.createElement('a');
-    link.download = filename;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+  /* ---------------- Export preview modal ----------------
+     Used by every save button instead of triggering a silent download.
+     A programmatic <a download> click never surfaces a "save image" option
+     on mobile browsers — showing the PNG as a real <img> is what lets a
+     phone's native long-press context menu ("사진에 저장" / "이미지 저장")
+     work at all. The download link and, where supported, the native share
+     sheet (which itself offers "이미지 저장") cover the rest. */
+  const exportModal = document.getElementById('exportModal');
+  const exportPreviewImg = document.getElementById('exportPreviewImg');
+  const exportCloseBtn = document.getElementById('exportCloseBtn');
+  const exportShareBtn = document.getElementById('exportShareBtn');
+  const exportDownloadLink = document.getElementById('exportDownloadLink');
+  let exportObjectUrl = null;
+
+  function closeExportModal(){
+    exportModal.classList.remove('open');
+    if(exportObjectUrl){ URL.revokeObjectURL(exportObjectUrl); exportObjectUrl = null; }
+    exportPreviewImg.src = '';
+  }
+  exportCloseBtn.addEventListener('click', closeExportModal);
+  exportModal.addEventListener('click', (e)=>{ if(e.target === exportModal) closeExportModal(); });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && exportModal.classList.contains('open')) closeExportModal();
+  });
+
+  async function showExportPreview(canvas, filename){
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    if(exportObjectUrl) URL.revokeObjectURL(exportObjectUrl);
+    exportObjectUrl = URL.createObjectURL(blob);
+
+    exportPreviewImg.src = exportObjectUrl;
+    exportDownloadLink.href = exportObjectUrl;
+    exportDownloadLink.download = filename;
+
+    // Native share sheet (offers "이미지 저장" / "Save Image" itself on most
+    // phones, plus messaging apps) — only wired up when the platform can
+    // actually share a file, so the button never appears somewhere it'd
+    // just fail silently.
+    let canShareFile = false;
+    let shareFile = null;
+    try{
+      shareFile = new File([blob], filename, { type:'image/png' });
+      canShareFile = !!(navigator.canShare && navigator.canShare({ files:[shareFile] }));
+    }catch(e){ canShareFile = false; }
+    exportShareBtn.hidden = !canShareFile;
+    exportShareBtn.onclick = async ()=>{
+      try{ await navigator.share({ files:[shareFile], title: filename }); }
+      catch(err){ /* user cancelled the share sheet — not an error */ }
+    };
+
+    exportModal.classList.add('open');
   }
 
   async function withBusy(btn, label, fn){
@@ -3285,7 +3461,7 @@ Thank you for being my home</div>
     withBusy(e.currentTarget, '...', async ()=>{
       const c = await exportFace(faceFront);
       if(!isLoggedIn) drawExportWatermark(c.getContext('2d'), c.width, c.height, SCALE, 'center');
-      downloadCanvas(c, 'ticket-front.png');
+      await showExportPreview(c, 'ticket-front.png');
     });
   });
 
@@ -3293,7 +3469,7 @@ Thank you for being my home</div>
     withBusy(e.currentTarget, '...', async ()=>{
       const c = await exportFace(faceBack);
       if(!isLoggedIn) drawExportWatermark(c.getContext('2d'), c.width, c.height, SCALE, 'center');
-      downloadCanvas(c, 'ticket-back.png');
+      await showExportPreview(c, 'ticket-back.png');
     });
   });
 
@@ -3337,7 +3513,7 @@ Thank you for being my home</div>
 
       if(!isLoggedIn) drawExportWatermark(ctx, totalW, totalH, SCALE, 'right');
 
-      downloadCanvas(combined, 'ticket-front-back.png');
+      await showExportPreview(combined, 'ticket-front-back.png');
     });
   });
 
